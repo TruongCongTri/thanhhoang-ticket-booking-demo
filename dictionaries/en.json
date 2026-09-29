@@ -1,0 +1,358 @@
+{
+  "meta": {
+    "title": "{brand} — Every Vietnamese airline, one search",
+    "description": "{brand} connects directly to every airline in Vietnam. Compare live fares from Vietnam Airlines, Vietjet, Bamboo, Vietravel, Pacific and Sun PhuQuoc Airways — domestic and international — and book in seconds."
+  },
+  "loading": "Loading {brand}…",
+  "archipelagos": [
+    "Hoàng Sa Is.",
+    "Trường Sa Is."
+  ],
+  "nav": {
+    "home": "{brand} — home",
+    "primary": "Primary",
+    "links": {
+      "airlines": "Airlines",
+      "routes": "Domestic",
+      "international": "International",
+      "ticket": "How it works"
+    },
+    "myTrips": "My trips",
+    "language": "Language",
+    "toLight": "Switch to light theme",
+    "toDark": "Switch to dark theme"
+  },
+  "rail": {
+    "label": "Sections",
+    "stages": {
+      "top": "Fly",
+      "search": "Search",
+      "airlines": "Connect",
+      "routes": "Domestic flights",
+      "international": "International flights",
+      "ticket": "Board",
+      "thanh-hoang": "Thanh Hoang"
+    }
+  },
+  "hero": {
+    "label": "Every airline in Vietnam · One search",
+    "title": "Fly Vietnam, booked in seconds.",
+    "body": "{brand} plugs straight into the booking systems of every Vietnamese airline. Real seats, real fares, confirmed by the carrier — no middlemen, no markups, no waiting.",
+    "cta": "See how it works"
+  },
+  "search": {
+    "label": "Live inventory",
+    "title": "The whole sky, in one search.",
+    "body": "One query fans out to every carrier at once. {brand} reads availability live from each airline, so the fare you see is the fare you pay — down to the last seat.",
+    "stats": {
+      "airlines": "airlines",
+      "airports": "airports",
+      "flights": "daily flights"
+    }
+  },
+  "airlines": {
+    "label": "Direct airline APIs",
+    "title": "Wired straight into the airlines.",
+    "body": "No screen-scraping and no resold inventory. {brand} holds direct API connections with each carrier, so your ticket is issued by the airline itself the moment you pay."
+  },
+  "routes": {
+    "label": "Domestic flights",
+    "title": "From Hà Nội to Phú Quốc.",
+    "body": "{count} airports, from Điện Biên to Côn Đảo. Tap a route to search it live."
+  },
+  "international": {
+    "label": "International flights",
+    "title": "Where to next?",
+    "body": "Straight from Hà Nội, TP. Hồ Chí Minh and Đà Nẵng to Asia, Europe and Australia. Tap a route to search it live."
+  },
+  "ticket": {
+    "label": "Instant e-ticket",
+    "title": "A boarding pass before you blink.",
+    "body": "Pay with VietQR, MoMo, ZaloPay or any card. Your e-ticket lands in under a minute, with gate changes and delays pushed to your phone as they happen.",
+    "steps": [
+      {
+        "title": "Search",
+        "sub": "every airline at once"
+      },
+      {
+        "title": "Pay",
+        "sub": "local wallets & cards"
+      },
+      {
+        "title": "Fly",
+        "sub": "ticket issued by carrier"
+      }
+    ]
+  },
+  "footer": {
+    "tagline": "Direct bookings with every airline in Vietnam.",
+    "links": [
+      "Airlines",
+      "Routes",
+      "Help",
+      "Privacy",
+      "Terms"
+    ],
+    "rights": "© 2026 {brand}",
+    "contactTitle": "Ticket office",
+    "phone": "Phone",
+    "email": "Email",
+    "address": "Address",
+    "addressText": "5th floor, SABAY Building, 481 Cộng Hòa, Tân Bình Ward, Ho Chi Minh City",
+    "designedBy": "Designed by",
+    "disclaimer": "Disclaimer"
+  },
+  "routeList": {
+    "from": "from",
+    "direct": "direct",
+    "search": "Search {from} to {to}"
+  },
+  "dock": {
+    "oneWay": "One-way",
+    "roundTrip": "Round-trip",
+    "from": "From",
+    "to": "To",
+    "depart": "Depart",
+    "return": "Return",
+    "travellers": "Travellers",
+    "swap": "Swap origin and destination",
+    "adults": "Adults",
+    "adultsHint": "12+ years",
+    "children": "Children",
+    "childrenHint": "2–11 years",
+    "fewer": "Fewer {what}",
+    "more": "More {what}",
+    "adultCount": {
+      "one": "{n} adult",
+      "other": "{n} adults"
+    },
+    "childCount": {
+      "one": "{n} child",
+      "other": "{n} children"
+    },
+    "passengers": {
+      "one": "{n} passenger",
+      "other": "{n} passengers"
+    },
+    "searchFlights": "Search flights",
+    "search": "Search",
+    "continue": "Continue",
+    "continueWith": "Continue · {price}",
+    "mobileSummary": "{date} · {n} pax · edit ▴",
+    "hideOptions": "Hide options ▾",
+    "results": "Flight results",
+    "close": "Close ✕",
+    "closeResults": "Close results",
+    "asking": "Asking {n} airlines directly…",
+    "fares": {
+      "one": "{n} fare",
+      "other": "{n} fares"
+    },
+    "noSeats": "no seats",
+    "querying": "querying",
+    "liveFares": "{n} live fares from {m} airlines",
+    "outbound": "outbound",
+    "inbound": "return",
+    "cheapest": "Cheapest",
+    "direct": "direct",
+    "seatsLeft": {
+      "one": "{n} seat left",
+      "other": "{n} seats left"
+    },
+    "selected": "Selected",
+    "select": "Select",
+    "airportPlaceholder": "City or airport code",
+    "searchAirports": "Search airports",
+    "airports": "Airports",
+    "noMatch": "No airport matches “{q}”.",
+    "tripType": "Trip type",
+    "pickDepart": "Pick your departure date",
+    "pickReturn": "Pick your return date",
+    "domesticGroup": "Vietnam",
+    "internationalGroup": "International",
+    "outboundTitle": "Outbound · {from} → {to}",
+    "returnTitle": "Return · {from} → {to}",
+    "changeOutbound": "Change outbound",
+    "chosenOutbound": "Outbound {flight}, {time}",
+    "progress": "{n} of {m} airlines answered",
+    "searching": "Searching…",
+    "selectFare": "Select a fare",
+    "checkingOut": "Checkout in progress",
+    "paying": "Paying…",
+    "abortCheckout": "Cancel checkout"
+  },
+  "checkout": {
+    "label": "Checkout",
+    "steps": [
+      "Details",
+      "Payment",
+      "Pay",
+      "Done"
+    ],
+    "cancel": "Cancel ✕",
+    "back": "Back",
+    "next": "Continue",
+    "phone": "Phone number",
+    "phoneHint": "Required. Your booking is saved to this number — it's all you need to find your trips later.",
+    "phonePlaceholder": "0912 345 678",
+    "phoneError": "Enter a Vietnamese mobile number, e.g. 0912 345 678.",
+    "passenger": "Passenger {n} · {kind}",
+    "adult": "adult",
+    "child": "child",
+    "namePlaceholder": "Full name as on ID",
+    "nameError": "Enter this passenger's full name.",
+    "email": "Email (optional)",
+    "emailPlaceholder": "for a copy of the e-ticket",
+    "emailError": "That email doesn't look right.",
+    "methodTitle": "How would you like to pay?",
+    "methods": {
+      "vietqr": {
+        "name": "VietQR",
+        "sub": "Scan with any banking app"
+      },
+      "momo": {
+        "name": "MoMo",
+        "sub": "Pay in the MoMo app"
+      },
+      "zalopay": {
+        "name": "ZaloPay",
+        "sub": "Pay in the ZaloPay app"
+      },
+      "card": {
+        "name": "Card",
+        "sub": "Visa, Mastercard, JCB, Napas"
+      }
+    },
+    "summary": "Your trip",
+    "fare": "Air fares",
+    "taxes": "VAT (10%)",
+    "fees": "Airport & security charges",
+    "total": "Total",
+    "scanTitle": "Scan to pay with {method}",
+    "transferNote": "Transfer note",
+    "amount": "Amount",
+    "holds": "Your seats are held for {time}",
+    "paid": "I've paid",
+    "cardNumber": "Card number",
+    "cardName": "Name on card",
+    "expiry": "Expiry (MM/YY)",
+    "cvc": "CVC",
+    "cardError": "Check the card number.",
+    "cardNameError": "Enter the name on the card.",
+    "expiryError": "Use MM/YY, not in the past.",
+    "cvcError": "3 or 4 digits.",
+    "pay": "Pay {total}",
+    "processing": "Confirming with the airline…",
+    "processingSub": "Your e-ticket is being issued directly by the carrier.",
+    "doneTitle": "You're booked.",
+    "code": "Booking code",
+    "savedTo": "Saved to {phone}. Open My trips and enter this number to see it any time.",
+    "viewTrips": "View my trips",
+    "done": "Done",
+    "demo": "Demo checkout — no real payment is taken.",
+    "paying": "Processing…",
+    "selectMethod": "Choose a method",
+    "fixFields": "A few details need a look",
+    "fixFieldsBody": "Check the highlighted fields.",
+    "declined": "Payment declined",
+    "declinedBody": "Your bank declined this card. Try another card or pay by QR.",
+    "expired": "Seat hold expired",
+    "expiredBody": "Those seats were released. Search again for fresh fares.",
+    "booked": "Booked · {code}",
+    "bookedBody": "{route} · {date}, {time} · {flight}. Saved to {phone}.",
+    "demoTitle": "This was a demo booking",
+    "demoBody": "No ticket was issued and no money was taken. This site is a portfolio demo, not affiliated with Thanh Hoang."
+  },
+  "trips": {
+    "title": "My trips",
+    "intro": "Enter the phone number you booked with.",
+    "find": "Find my trips",
+    "none": "No bookings for {phone} yet.",
+    "found": {
+      "one": "{n} booking for {phone}",
+      "other": "{n} bookings for {phone}"
+    },
+    "confirmed": "Confirmed",
+    "booked": "Booked {date}",
+    "close": "Close ✕",
+    "finding": "Finding…",
+    "view": "View ticket",
+    "back": "All trips",
+    "noneToast": "No bookings for {phone}",
+    "soonToast": "{flight} · {route}",
+    "download": "Download ticket",
+    "downloadQr": "Download QR",
+    "downloading": "Preparing…",
+    "downloaded": "Saved {file}",
+    "downloadFailed": "Couldn't save the file",
+    "timeline": "Your day of travel",
+    "steps": {
+      "onlineOpen": "Online check-in opens",
+      "counterOpen": "Check-in counters open",
+      "counterClose": "Check-in closes",
+      "boarding": "Boarding starts",
+      "gateClose": "Gate closes — be at the plane",
+      "departure": "Departure"
+    },
+    "status": {
+      "later": "Online check-in opens {when}",
+      "checkin": "Check-in is open — it closes in {left}",
+      "closed": "Check-in has closed — boarding starts in {left}",
+      "boarding": "Boarding now — the gate closes in {left}",
+      "gate": "The gate has closed — departing in {left}",
+      "departed": "This flight has departed"
+    },
+    "rules": {
+      "domestic": "Domestic: counters close 40 min before departure; the gate closes 15 min before.",
+      "international": "International: counters close 60 min before departure; the gate closes 20 min before. Bring your passport."
+    },
+    "sending": "Sending code…",
+    "otpSent": "Enter the 6-digit code we sent to {phone}.",
+    "otpLabel": "Verification code",
+    "digit": "Digit {n} of 6",
+    "verify": "Verify",
+    "verifying": "Verifying…",
+    "wrongCode": "That code isn't right",
+    "wrongCodeBody": "Check the text message and try again.",
+    "resend": "Resend code",
+    "resendIn": "Resend in {s}s",
+    "changeNumber": "Change number",
+    "demoSms": "Your Thanh Hoang code: {code}",
+    "demoSmsBody": "Demo SMS to {phone} — in production it arrives by text message.",
+    "forPhone": "Trips for {phone}",
+    "verified": "Verified",
+    "findTrips": "Find trips"
+  },
+  "toast": {
+    "dismiss": "Dismiss"
+  },
+  "pass": {
+    "boardingPass": "Boarding pass",
+    "passenger": "Passenger",
+    "flight": "Flight",
+    "date": "Date",
+    "boarding": "Boarding",
+    "gateCloses": "Gate closes",
+    "gate": "Gate",
+    "seat": "Seat",
+    "terminal": "Terminal",
+    "bookingCode": "Booking"
+  },
+  "contact": {
+    "label": "Contact us",
+    "call": "Call",
+    "callAria": "Call the hotline {phone}",
+    "zalo": "Chat on Zalo",
+    "zaloAria": "Chat with us on Zalo (opens Zalo)"
+  },
+  "disclaimer": {
+    "title": "Disclaimer",
+    "body": [
+      "This is a demo website. I built it to show what I can do as an end-to-end developer, from 3D interaction and design to booking, payment and ticketing flows, and how I could contribute to Thanh Hoang.",
+      "It is not affiliated with or endorsed by Thanh Hoang. I claim no copyright over the company's name, logo or content. No real bookings or payments are made, and flight data is simulated.",
+      "If you represent Thanh Hoang and would like anything changed or removed, please get in touch and I will act on it promptly."
+    ],
+    "contact": "Contact me",
+    "close": "Close"
+  }
+}

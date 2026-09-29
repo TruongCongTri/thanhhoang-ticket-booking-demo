@@ -1,0 +1,358 @@
+{
+  "meta": {
+    "title": "{brand} — Mọi hãng bay Việt Nam, một lần tìm",
+    "description": "{brand} kết nối trực tiếp với mọi hãng hàng không Việt Nam. So sánh giá vé theo thời gian thực của Vietnam Airlines, Vietjet, Bamboo, Vietravel, Pacific và Sun PhuQuoc Airways — nội địa lẫn quốc tế — và đặt vé trong vài giây."
+  },
+  "loading": "Đang tải {brand}…",
+  "archipelagos": [
+    "QĐ. Hoàng Sa",
+    "QĐ. Trường Sa"
+  ],
+  "nav": {
+    "home": "{brand} — trang chủ",
+    "primary": "Điều hướng chính",
+    "links": {
+      "airlines": "Hãng bay",
+      "routes": "Nội địa",
+      "international": "Quốc tế",
+      "ticket": "Cách hoạt động"
+    },
+    "myTrips": "Chuyến đi",
+    "language": "Ngôn ngữ",
+    "toLight": "Chuyển sang giao diện sáng",
+    "toDark": "Chuyển sang giao diện tối"
+  },
+  "rail": {
+    "label": "Các phần",
+    "stages": {
+      "top": "Bay",
+      "search": "Tìm kiếm",
+      "airlines": "Kết nối",
+      "routes": "Chuyến bay nội địa",
+      "international": "Chuyến bay quốc tế",
+      "ticket": "Lên máy bay",
+      "thanh-hoang": "Thanh Hoang"
+    }
+  },
+  "hero": {
+    "label": "Mọi hãng bay Việt Nam · Một lần tìm",
+    "title": "Bay khắp Việt Nam, đặt vé trong tích tắc.",
+    "body": "{brand} kết nối thẳng vào hệ thống đặt chỗ của mọi hãng hàng không Việt Nam. Ghế thật, giá thật, do chính hãng xác nhận — không trung gian, không phụ phí, không chờ đợi.",
+    "cta": "Xem cách hoạt động"
+  },
+  "search": {
+    "label": "Chỗ trống theo thời gian thực",
+    "title": "Cả bầu trời, trong một lần tìm.",
+    "body": "Một lần tìm được gửi tới mọi hãng cùng lúc. {brand} đọc chỗ trống trực tiếp từ từng hãng, nên giá bạn thấy là giá bạn trả — đến tận chiếc ghế cuối cùng.",
+    "stats": {
+      "airlines": "hãng bay",
+      "airports": "sân bay",
+      "flights": "chuyến mỗi ngày"
+    }
+  },
+  "airlines": {
+    "label": "API trực tiếp với hãng",
+    "title": "Kết nối thẳng tới các hãng bay.",
+    "body": "Không cào dữ liệu, không bán lại chỗ. {brand} kết nối API trực tiếp với từng hãng, nên vé của bạn do chính hãng xuất ngay khi bạn thanh toán."
+  },
+  "routes": {
+    "label": "Chuyến bay nội địa",
+    "title": "Từ Hà Nội đến Phú Quốc.",
+    "body": "{count} sân bay, từ Điện Biên đến Côn Đảo. Chạm vào một chặng bay để tìm ngay."
+  },
+  "international": {
+    "label": "Chuyến bay quốc tế",
+    "title": "Tiếp theo, đi đâu?",
+    "body": "Bay thẳng từ Hà Nội, TP. Hồ Chí Minh và Đà Nẵng tới châu Á, châu Âu và Úc. Chạm vào một chặng bay để tìm ngay."
+  },
+  "ticket": {
+    "label": "Vé điện tử tức thì",
+    "title": "Có thẻ lên máy bay trong chớp mắt.",
+    "body": "Thanh toán bằng VietQR, MoMo, ZaloPay hoặc mọi loại thẻ. Vé điện tử đến trong chưa đầy một phút, kèm thông báo đổi cửa và chậm chuyến ngay trên điện thoại.",
+    "steps": [
+      {
+        "title": "Tìm",
+        "sub": "mọi hãng cùng lúc"
+      },
+      {
+        "title": "Trả",
+        "sub": "ví và thẻ nội địa"
+      },
+      {
+        "title": "Bay",
+        "sub": "vé do hãng xuất"
+      }
+    ]
+  },
+  "footer": {
+    "tagline": "Đặt vé trực tiếp với mọi hãng bay Việt Nam.",
+    "links": [
+      "Hãng bay",
+      "Chặng bay",
+      "Trợ giúp",
+      "Quyền riêng tư",
+      "Điều khoản"
+    ],
+    "rights": "© 2026 {brand}",
+    "contactTitle": "Phòng vé",
+    "phone": "SĐT",
+    "email": "Email",
+    "address": "Địa chỉ",
+    "addressText": "Lầu 5 tòa nhà SABAY 481 Cộng Hòa, Phường Tân Bình, Tp. HCM",
+    "designedBy": "Thiết kế bởi",
+    "disclaimer": "Tuyên bố miễn trừ"
+  },
+  "routeList": {
+    "from": "từ",
+    "direct": "bay thẳng",
+    "search": "Tìm chuyến {from} đến {to}"
+  },
+  "dock": {
+    "oneWay": "Một chiều",
+    "roundTrip": "Khứ hồi",
+    "from": "Từ",
+    "to": "Đến",
+    "depart": "Ngày đi",
+    "return": "Ngày về",
+    "travellers": "Hành khách",
+    "swap": "Đổi điểm đi và điểm đến",
+    "adults": "Người lớn",
+    "adultsHint": "từ 12 tuổi",
+    "children": "Trẻ em",
+    "childrenHint": "2–11 tuổi",
+    "fewer": "Bớt {what}",
+    "more": "Thêm {what}",
+    "adultCount": {
+      "one": "{n} người lớn",
+      "other": "{n} người lớn"
+    },
+    "childCount": {
+      "one": "{n} trẻ em",
+      "other": "{n} trẻ em"
+    },
+    "passengers": {
+      "one": "{n} hành khách",
+      "other": "{n} hành khách"
+    },
+    "searchFlights": "Tìm chuyến bay",
+    "search": "Tìm",
+    "continue": "Tiếp tục",
+    "continueWith": "Tiếp tục · {price}",
+    "mobileSummary": "{date} · {n} khách · sửa ▴",
+    "hideOptions": "Ẩn tùy chọn ▾",
+    "results": "Kết quả chuyến bay",
+    "close": "Đóng ✕",
+    "closeResults": "Đóng kết quả",
+    "asking": "Đang hỏi trực tiếp {n} hãng bay…",
+    "fares": {
+      "one": "{n} giá vé",
+      "other": "{n} giá vé"
+    },
+    "noSeats": "hết chỗ",
+    "querying": "đang hỏi",
+    "liveFares": "{n} giá vé trực tiếp từ {m} hãng",
+    "outbound": "chiều đi",
+    "inbound": "chiều về",
+    "cheapest": "Rẻ nhất",
+    "direct": "bay thẳng",
+    "seatsLeft": {
+      "one": "còn {n} ghế",
+      "other": "còn {n} ghế"
+    },
+    "selected": "Đã chọn",
+    "select": "Chọn",
+    "airportPlaceholder": "Thành phố hoặc mã sân bay",
+    "searchAirports": "Tìm sân bay",
+    "airports": "Sân bay",
+    "noMatch": "Không có sân bay nào khớp “{q}”.",
+    "tripType": "Loại hành trình",
+    "pickDepart": "Chọn ngày đi",
+    "pickReturn": "Chọn ngày về",
+    "domesticGroup": "Việt Nam",
+    "internationalGroup": "Quốc tế",
+    "outboundTitle": "Chiều đi · {from} → {to}",
+    "returnTitle": "Chiều về · {from} → {to}",
+    "changeOutbound": "Đổi chuyến đi",
+    "chosenOutbound": "Chiều đi {flight}, {time}",
+    "progress": "{n}/{m} hãng đã trả lời",
+    "searching": "Đang tìm…",
+    "selectFare": "Chọn một giá vé",
+    "checkingOut": "Đang thanh toán",
+    "paying": "Đang thanh toán…",
+    "abortCheckout": "Hủy thanh toán"
+  },
+  "checkout": {
+    "label": "Thanh toán",
+    "steps": [
+      "Thông tin",
+      "Hình thức",
+      "Thanh toán",
+      "Hoàn tất"
+    ],
+    "cancel": "Hủy ✕",
+    "back": "Quay lại",
+    "next": "Tiếp tục",
+    "phone": "Số điện thoại",
+    "phoneHint": "Bắt buộc. Đặt chỗ được lưu theo số này — chỉ cần số điện thoại là tra cứu lại được chuyến bay.",
+    "phonePlaceholder": "0912 345 678",
+    "phoneError": "Nhập số di động Việt Nam, ví dụ 0912 345 678.",
+    "passenger": "Hành khách {n} · {kind}",
+    "adult": "người lớn",
+    "child": "trẻ em",
+    "namePlaceholder": "Họ tên như trên giấy tờ",
+    "nameError": "Nhập họ tên đầy đủ của hành khách.",
+    "email": "Email (không bắt buộc)",
+    "emailPlaceholder": "để nhận bản sao vé điện tử",
+    "emailError": "Email chưa đúng định dạng.",
+    "methodTitle": "Bạn muốn thanh toán bằng cách nào?",
+    "methods": {
+      "vietqr": {
+        "name": "VietQR",
+        "sub": "Quét bằng mọi ứng dụng ngân hàng"
+      },
+      "momo": {
+        "name": "MoMo",
+        "sub": "Thanh toán trong ứng dụng MoMo"
+      },
+      "zalopay": {
+        "name": "ZaloPay",
+        "sub": "Thanh toán trong ứng dụng ZaloPay"
+      },
+      "card": {
+        "name": "Thẻ",
+        "sub": "Visa, Mastercard, JCB, Napas"
+      }
+    },
+    "summary": "Chuyến đi của bạn",
+    "fare": "Giá vé",
+    "taxes": "Thuế GTGT (10%)",
+    "fees": "Phí sân bay & an ninh",
+    "total": "Tổng cộng",
+    "scanTitle": "Quét mã để thanh toán bằng {method}",
+    "transferNote": "Nội dung chuyển khoản",
+    "amount": "Số tiền",
+    "holds": "Ghế được giữ trong {time}",
+    "paid": "Tôi đã thanh toán",
+    "cardNumber": "Số thẻ",
+    "cardName": "Tên chủ thẻ",
+    "expiry": "Hết hạn (MM/YY)",
+    "cvc": "CVC",
+    "cardError": "Kiểm tra lại số thẻ.",
+    "cardNameError": "Nhập tên chủ thẻ.",
+    "expiryError": "Dùng dạng MM/YY, chưa hết hạn.",
+    "cvcError": "3 hoặc 4 chữ số.",
+    "pay": "Thanh toán {total}",
+    "processing": "Đang xác nhận với hãng bay…",
+    "processingSub": "Vé điện tử đang được chính hãng xuất.",
+    "doneTitle": "Đặt chỗ thành công.",
+    "code": "Mã đặt chỗ",
+    "savedTo": "Đã lưu theo số {phone}. Mở Chuyến đi và nhập số này để xem bất cứ lúc nào.",
+    "viewTrips": "Xem chuyến đi",
+    "done": "Xong",
+    "demo": "Thanh toán mô phỏng — không trừ tiền thật.",
+    "paying": "Đang xử lý…",
+    "selectMethod": "Chọn hình thức",
+    "fixFields": "Một vài thông tin cần xem lại",
+    "fixFieldsBody": "Kiểm tra các ô được đánh dấu.",
+    "declined": "Thanh toán bị từ chối",
+    "declinedBody": "Ngân hàng đã từ chối thẻ này. Thử thẻ khác hoặc thanh toán bằng QR.",
+    "expired": "Hết thời gian giữ ghế",
+    "expiredBody": "Ghế đã được nhả. Hãy tìm lại để có giá mới.",
+    "booked": "Đã đặt · {code}",
+    "bookedBody": "{route} · {date}, {time} · {flight}. Đã lưu theo số {phone}.",
+    "demoTitle": "Đây là đặt chỗ demo",
+    "demoBody": "Không có vé nào được xuất và không có khoản tiền nào bị trừ. Website này là bản demo portfolio, không thuộc Thanh Hoang."
+  },
+  "trips": {
+    "title": "Chuyến đi của tôi",
+    "intro": "Nhập số điện thoại bạn đã dùng khi đặt vé.",
+    "find": "Tìm chuyến đi",
+    "none": "Chưa có đặt chỗ nào cho số {phone}.",
+    "found": {
+      "one": "{n} đặt chỗ cho số {phone}",
+      "other": "{n} đặt chỗ cho số {phone}"
+    },
+    "confirmed": "Đã xác nhận",
+    "booked": "Đặt ngày {date}",
+    "close": "Đóng ✕",
+    "finding": "Đang tìm…",
+    "view": "Xem vé",
+    "back": "Tất cả chuyến đi",
+    "noneToast": "Chưa có đặt chỗ cho số {phone}",
+    "soonToast": "{flight} · {route}",
+    "download": "Tải vé",
+    "downloadQr": "Tải mã QR",
+    "downloading": "Đang chuẩn bị…",
+    "downloaded": "Đã lưu {file}",
+    "downloadFailed": "Không lưu được tệp",
+    "timeline": "Ngày bay của bạn",
+    "steps": {
+      "onlineOpen": "Mở làm thủ tục trực tuyến",
+      "counterOpen": "Mở quầy thủ tục",
+      "counterClose": "Đóng quầy thủ tục",
+      "boarding": "Bắt đầu lên máy bay",
+      "gateClose": "Đóng cửa ra máy bay — có mặt tại máy bay",
+      "departure": "Cất cánh"
+    },
+    "status": {
+      "later": "Làm thủ tục trực tuyến từ {when}",
+      "checkin": "Đang mở làm thủ tục — đóng sau {left}",
+      "closed": "Đã đóng quầy thủ tục — lên máy bay sau {left}",
+      "boarding": "Đang lên máy bay — cửa đóng sau {left}",
+      "gate": "Cửa ra máy bay đã đóng — cất cánh sau {left}",
+      "departed": "Chuyến bay đã cất cánh"
+    },
+    "rules": {
+      "domestic": "Nội địa: quầy đóng 40 phút trước giờ bay; cửa ra máy bay đóng 15 phút trước.",
+      "international": "Quốc tế: quầy đóng 60 phút trước giờ bay; cửa ra máy bay đóng 20 phút trước. Nhớ mang hộ chiếu."
+    },
+    "sending": "Đang gửi mã…",
+    "otpSent": "Nhập mã 6 số đã gửi tới {phone}.",
+    "otpLabel": "Mã xác thực",
+    "digit": "Số thứ {n} trên 6",
+    "verify": "Xác thực",
+    "verifying": "Đang xác thực…",
+    "wrongCode": "Mã chưa đúng",
+    "wrongCodeBody": "Kiểm tra tin nhắn và thử lại.",
+    "resend": "Gửi lại mã",
+    "resendIn": "Gửi lại sau {s}s",
+    "changeNumber": "Đổi số",
+    "demoSms": "Mã Thanh Hoang của bạn: {code}",
+    "demoSmsBody": "SMS mô phỏng tới {phone} — bản thật sẽ gửi qua tin nhắn.",
+    "forPhone": "Chuyến đi của số {phone}",
+    "verified": "Đã xác thực",
+    "findTrips": "Tìm chuyến đi"
+  },
+  "toast": {
+    "dismiss": "Đóng"
+  },
+  "pass": {
+    "boardingPass": "Thẻ lên máy bay",
+    "passenger": "Hành khách",
+    "flight": "Chuyến bay",
+    "date": "Ngày",
+    "boarding": "Lên máy bay",
+    "gateCloses": "Đóng cửa",
+    "gate": "Cửa",
+    "seat": "Ghế",
+    "terminal": "Nhà ga",
+    "bookingCode": "Mã đặt chỗ"
+  },
+  "contact": {
+    "label": "Liên hệ",
+    "call": "Gọi ngay",
+    "callAria": "Gọi đường dây nóng {phone}",
+    "zalo": "Chat Zalo",
+    "zaloAria": "Nhắn tin với chúng tôi qua Zalo (mở Zalo)"
+  },
+  "disclaimer": {
+    "title": "Tuyên bố miễn trừ trách nhiệm",
+    "body": [
+      "Đây là website demo. Tôi xây dựng nó để thể hiện năng lực của một lập trình viên end-to-end, từ tương tác 3D, thiết kế đến quy trình đặt vé, thanh toán và xuất vé, cũng như cách tôi có thể đóng góp cho Thanh Hoang.",
+      "Website không thuộc sở hữu hay được Thanh Hoang bảo trợ. Tôi không có bản quyền đối với tên, logo hay nội dung của công ty. Không có đặt chỗ hay thanh toán thật nào được thực hiện; dữ liệu chuyến bay là mô phỏng.",
+      "Nếu bạn là đại diện của Thanh Hoang và muốn chỉnh sửa hoặc gỡ bỏ bất kỳ nội dung nào, vui lòng liên hệ, tôi sẽ xử lý ngay."
+    ],
+    "contact": "Liên hệ tôi",
+    "close": "Đóng"
+  }
+}

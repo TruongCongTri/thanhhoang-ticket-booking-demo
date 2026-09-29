@@ -1,26 +1,1012 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/*
+ * Tokens: void canvas and bone type from DESIGN.md; the accents follow the
+ * company logo — its blue for actions, focus and "you are here", its yellow
+ * for hover (and for warnings: the cheapest fare, the last few seats).
+ */
+@theme {
+  --color-void: #000000;
+  --color-bone: #ffffff;
+  --color-ash: #9a9a9a;
+  --color-mist: #bdbdbd;
+  --color-brand: #0a6cc2; /* the logo's blue: buttons, selected days */
+  --color-azure: #3d9bf0; /* the same blue, lifted to read on black: active and focus */
+  --color-saffron: #f5a830; /* the logo's yellow: hover, and warnings */
+  --color-verdant: #15846e;
+
+  --radius-3xl: 24px;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* Inter stands in for PP Neue Montreal, per the design doc. */
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/*
+ * Themes. Dark is the original: a black void with white type. Light turns
+ * the page white and the "white" ink a deep navy — Tailwind's white/black
+ * tokens follow, so every text-white / bg-white/5 / border-white/10 in the
+ * components flips with it. The logo's blue and yellow deepen in light so
+ * they still read on white; as fills (buttons, badges) they stay bright.
+ * Set on <html data-theme> before first paint (see app/[locale]/layout.tsx).
+ */
+:root {
+  color-scheme: dark;
+  --paper-color: #000000;
+  --paper: 0 0 0; /* the background, as r g b for tints */
+  --ink: 255 255 255; /* the type colour, as r g b */
+  --drop: rgba(0, 0, 0, 0.45);
+  --toast-bg: rgba(14, 16, 22, 0.94);
+  --tab-bg: rgba(16, 16, 20, 0.72);
+  --card-bg: rgba(22, 26, 36, 0.92);
+  --notice-info-ink: #d8ebff;
+  --notice-warn-ink: #ffe7bf;
+  --saffron-fill: #f5a830;
+  --azure-fill: #3d9bf0;
+  --on-azure: #000;
+}
+:root[data-theme="light"] {
+  color-scheme: light;
+  --paper-color: #f4f6fa;
+  --paper: 244 246 250;
+  --ink: 13 20 32;
+  --drop: rgba(13, 20, 32, 0.14);
+  --toast-bg: rgba(255, 255, 255, 0.96);
+  --tab-bg: rgba(226, 231, 239, 0.82);
+  --card-bg: rgba(255, 255, 255, 0.94);
+  --notice-info-ink: #0b3f73;
+  --notice-warn-ink: #6b4200;
+  --azure-fill: #0a6cc2;
+  --on-azure: #fff;
+  /* Tailwind's tokens, re-pointed */
+  --color-white: #0d1420;
+  --color-black: #ffffff;
+  --color-ash: #5a6372;
+  --color-mist: #3c4553;
+  --color-azure: #0a6cc2;
+  --color-saffron: #a86400;
+}
+
+html {
+  background: var(--paper-color);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--paper-color);
+  color: rgb(var(--ink));
+  transition:
+    background-color 0.5s ease,
+    color 0.5s ease;
+  font-family: var(--font-sans);
+  font-feature-settings: "ss01" on;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--color-brand);
+  color: #fff;
+}
+
+/* ---- Scrollbars: slim, logo blue; yellow under the pointer ---- */
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(61, 155, 240, 0.45);
+  border: 3px solid transparent;
+  border-radius: 999px;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--saffron-fill);
+}
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+/* Panels inside the booking dock: slimmer still. */
+.scroll-thin::-webkit-scrollbar {
+  width: 8px;
+}
+.scroll-thin::-webkit-scrollbar-thumb {
+  border-width: 2px;
+  background-color: rgba(61, 155, 240, 0.4);
+}
+.scroll-thin::-webkit-scrollbar-thumb:hover {
+  background-color: var(--saffron-fill);
+}
+/* Browsers without ::-webkit-scrollbar (Firefox) get the standard properties. */
+@supports not selector(::-webkit-scrollbar) {
+  html,
+  .scroll-thin {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(61, 155, 240, 0.5) transparent;
+  }
+}
+
+/*
+ * Lenis smooth scrolling (from lenis/dist/lenis.css). Its "stopped → overflow:
+ * clip" rule is left out on purpose: while loading, the page still needs to
+ * jump to a #section programmatically, which clip would block.
+ */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+.lenis.lenis-smooth iframe {
+  pointer-events: none;
+}
+
+/* Loading screen: no user scrolling, and the page stays hidden until it starts. */
+html[data-loading] {
+  overflow: hidden;
+}
+[data-hide-while-loading] {
+  /* waits a beat, so the particle logo is already on its way out */
+  transition: opacity 1s ease 0.6s;
+}
+html[data-loading] [data-hide-while-loading] {
+  opacity: 0;
+}
+
+a,
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-azure);
+  outline-offset: 3px;
+  border-radius: 12px;
+}
+
+/* ---- Type scale ---- */
+
+.t-display {
+  font-size: clamp(52px, 8.8vw, 113px);
+  font-weight: 400;
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+}
+
+.t-heading-lg {
+  font-size: clamp(42px, 6.1vw, 78px);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+.t-heading {
+  font-size: clamp(34px, 3.8vw, 48px);
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: -0.035em;
+}
+
+.t-heading-2xs {
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+}
+
+.t-body {
+  font-size: 18px;
+  font-weight: 200;
+  line-height: 1.5;
+}
+
+.t-label {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: 0.025em;
+  text-transform: uppercase;
+  color: var(--color-azure);
+}
+
+.t-nav {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: 0.025em;
+  text-transform: uppercase;
+}
+
+.t-caption {
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+/* ---- Components ---- */
+
+/*
+ * Buttons share the boxes' corner radius (fields, inputs, cards: 14–18px).
+ * Blue at rest, yellow on hover; disabled goes quiet grey; busy shows a
+ * spinner and ignores clicks.
+ */
+.btn-primary,
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 16px;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.025em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition:
+    transform 0.25s ease,
+    background-color 0.25s ease,
+    box-shadow 0.25s ease,
+    color 0.25s ease,
+    opacity 0.25s ease;
+}
+.btn-primary {
+  background: var(--color-brand);
+  color: #fff;
+  padding: 14.4px 18px;
+}
+.btn-primary:hover:not(:disabled) {
+  background: var(--saffron-fill);
+  color: #000;
+}
+.btn-ghost {
+  padding: 9px 14px;
+  font-size: 12px;
+  color: rgb(var(--ink));
+  box-shadow: inset 0 0 0 1px rgb(var(--ink) / 0.18);
+}
+.btn-ghost:hover:not(:disabled) {
+  color: var(--color-saffron);
+  box-shadow: inset 0 0 0 1px var(--color-saffron);
+}
+/* the square ✕ that aborts a checkout, as tall as the button beside it */
+.btn-ghost.abort-btn {
+  align-self: stretch;
+  width: 48px;
+  padding: 0;
+}
+.btn-primary:active:not(:disabled),
+.btn-ghost:active:not(:disabled) {
+  transform: scale(0.97);
+}
+.btn-primary:disabled {
+  background: rgb(var(--ink) / 0.08);
+  color: var(--color-ash);
+  cursor: not-allowed;
+}
+.btn-ghost:disabled {
+  color: var(--color-ash);
+  box-shadow: inset 0 0 0 1px rgb(var(--ink) / 0.08);
+  cursor: not-allowed;
+}
+.btn-primary[aria-busy="true"],
+.btn-ghost[aria-busy="true"] {
+  cursor: progress;
+  color: #fff;
+}
+.btn-ghost[aria-busy="true"] {
+  color: rgb(var(--ink));
+}
+.btn-primary[aria-busy="true"] {
+  background: var(--color-brand);
+}
+.spinner {
+  width: 14px;
+  height: 14px;
+  flex: none;
+  border-radius: 999px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/*
+ * The one exception to "no surfaces": the floating dock has to stay legible
+ * over the particle field, so it gets a near-black glass and a hairline.
+ */
+.dock-surface {
+  background: rgb(var(--paper) / 0.8);
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+  border-radius: 24px;
+  box-shadow: inset 0 0 0 1px rgb(var(--ink) / 0.09);
+}
+
+/* Archipelago names, positioned over the particle map every frame by Scene.tsx */
+.map-label {
+  position: absolute;
+  left: 0;
+  top: 0;
+  opacity: 0;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-saffron);
+  white-space: nowrap;
+  will-change: transform, opacity;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 9999px;
+  background: rgb(var(--ink) / 0.18);
+  transition:
+    background-color 0.4s ease,
+    transform 0.4s ease;
+}
+.rail-link:hover .dot {
+  background: var(--saffron-fill);
+  transform: scale(1.25);
+}
+[data-active] > * > .dot {
+  background: var(--azure-fill);
+  transform: scale(1.25);
+}
+
+/* The rail: each section's name slides in beside its dot on hover or focus. */
+.rail-label {
+  /* a dark pill, so the name stays legible over a model */
+  padding: 5px 11px;
+  border-radius: 12px;
+  background: rgb(var(--paper) / 0.72);
+  color: var(--color-ash);
+  opacity: 0;
+  transform: translateX(8px);
+  pointer-events: none;
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease,
+    color 0.3s ease;
+}
+.rail-link:hover .rail-label,
+.rail-link:focus-visible .rail-label {
+  opacity: 1;
+  transform: none;
+}
+.rail-link[data-active] .rail-label {
+  color: var(--color-azure);
+}
+.rail-link:hover .rail-label {
+  color: var(--color-saffron);
+}
+
+/*
+ * Text links: yellow on hover, with an underline like a sound wave — rounded
+ * bars of uneven heights that draw in from the left, then stream along and
+ * swell and settle as if the link were playing.
+ */
+.link-wave {
+  position: relative;
+  transition: color 0.3s ease;
+  --sound-wave: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='10'%3E%3Crect x='1' y='3.5' width='2' height='3' rx='1'/%3E%3Crect x='5' y='2' width='2' height='6' rx='1'/%3E%3Crect x='9' y='.5' width='2' height='9' rx='1'/%3E%3Crect x='13' y='2.5' width='2' height='5' rx='1'/%3E%3Crect x='17' y='4' width='2' height='2' rx='1'/%3E%3Crect x='21' y='1.5' width='2' height='7' rx='1'/%3E%3Crect x='25' y='0' width='2' height='10' rx='1'/%3E%3Crect x='29' y='3' width='2' height='4' rx='1'/%3E%3Crect x='33' y='2' width='2' height='6' rx='1'/%3E%3Crect x='37' y='3.5' width='2' height='3' rx='1'/%3E%3Crect x='41' y='1' width='2' height='8' rx='1'/%3E%3Crect x='45' y='2.5' width='2' height='5' rx='1'/%3E%3Crect x='49' y='.5' width='2' height='9' rx='1'/%3E%3Crect x='53' y='4' width='2' height='2' rx='1'/%3E%3Crect x='57' y='2' width='2' height='6' rx='1'/%3E%3Crect x='61' y='0' width='2' height='10' rx='1'/%3E%3Crect x='65' y='3' width='2' height='4' rx='1'/%3E%3Crect x='69' y='1.5' width='2' height='7' rx='1'/%3E%3Crect x='73' y='3.5' width='2' height='3' rx='1'/%3E%3Crect x='77' y='2.5' width='2' height='5' rx='1'/%3E%3C/svg%3E");
+}
+.link-wave::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -16px;
+  height: 13px;
+  background-color: currentColor;
+  -webkit-mask: var(--sound-wave) 0 50% / 72px 13px repeat-x;
+  mask: var(--sound-wave) 0 50% / 72px 13px repeat-x;
+  clip-path: inset(0 100% 0 0);
+  transform-origin: 50% 50%;
+  transition: clip-path 0.55s cubic-bezier(0.65, 0, 0.35, 1);
+  animation:
+    sound-stream 2.4s linear infinite,
+    sound-level 1.3s ease-in-out infinite;
+  animation-play-state: paused;
+  pointer-events: none;
+}
+.link-wave:hover {
+  color: var(--color-saffron);
+}
+.link-wave:hover::after {
+  clip-path: inset(0 0 0 0);
+  animation-play-state: running;
+}
+@keyframes sound-stream {
+  to {
+    -webkit-mask-position: -72px 50%;
+    mask-position: -72px 50%;
+  }
+}
+/* the volume rises and falls unevenly, so the bars never settle into a pattern */
+@keyframes sound-level {
+  0%,
+  100% {
+    transform: scaleY(1);
+  }
+  18% {
+    transform: scaleY(0.55);
+  }
+  37% {
+    transform: scaleY(1.15);
+  }
+  52% {
+    transform: scaleY(0.7);
+  }
+  71% {
+    transform: scaleY(1.05);
+  }
+  86% {
+    transform: scaleY(0.6);
+  }
+}
+
+/*
+ * Phones and tablets: the models fill the screen behind the copy (see
+ * compactPoses in Scene.tsx), so the copy carries a soft glow of the page's
+ * own background to stay readable over the particles.
+ */
+@media (max-width: 1023px) {
+  #story :is(h1, h2, h3, p, li, dt, dd, a, button, span) {
+    text-shadow:
+      0 0 3px rgb(var(--paper) / 0.9),
+      0 0 16px rgb(var(--paper) / 0.85);
+  }
+}
+
+/* ---- Disclaimer pop-up (native <dialog>) ---- */
+.disclaimer {
+  margin: auto;
+  width: min(560px, calc(100vw - 32px));
+  max-height: calc(100svh - 48px);
+  overflow-y: auto;
+  border-radius: 24px;
+  color: rgb(var(--ink));
+  background: var(--toast-bg);
+  box-shadow:
+    inset 0 0 0 1px rgb(var(--ink) / 0.1),
+    0 30px 80px var(--drop);
+}
+.disclaimer[open] {
+  animation: panel-rise 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.disclaimer::backdrop {
+  background: rgb(var(--paper) / 0.6);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+
+/* ---- Theme toggle (header) ---- */
+.theme-toggle {
+  display: inline-flex;
+  width: 36px;
+  height: 36px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  color: rgb(var(--ink));
+  box-shadow: inset 0 0 0 1px rgb(var(--ink) / 0.16);
+  transition:
+    color 0.25s ease,
+    box-shadow 0.25s ease,
+    transform 0.25s ease;
+}
+.theme-toggle:hover {
+  color: var(--color-saffron);
+  box-shadow: inset 0 0 0 1px var(--saffron-fill);
+}
+.theme-toggle:active {
+  transform: scale(0.94);
+}
+.theme-icon {
+  display: inline-flex;
+}
+.theme-icon-moon,
+:root[data-theme="light"] .theme-icon-sun {
+  display: none;
+}
+:root[data-theme="light"] .theme-icon-moon {
+  display: inline-flex;
+}
+
+/* ---- Quick contact: call and Zalo, floating on the right ---- */
+.contact-float {
+  position: fixed;
+  right: 12px;
+  bottom: 96px; /* phones: just above the dock bar, clear of the tabs on its left */
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+@media (min-width: 768px) {
+  .contact-float {
+    right: 24px;
+    bottom: 176px; /* above the full dock and its tabs */
+  }
+}
+@media (min-width: 1360px) {
+  .contact-float {
+    bottom: 24px; /* wide screens: beside the dock */
+  }
+}
+.contact-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.contact-icon {
+  display: inline-flex;
+  width: 52px;
+  height: 52px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16px;
+  color: #fff;
+  background: var(--color-brand);
+  box-shadow:
+    inset 0 0 0 1px rgb(var(--ink) / 0.12),
+    0 12px 30px var(--drop);
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease,
+    transform 0.25s ease;
+}
+.contact-btn:hover .contact-icon,
+.contact-btn:focus-visible .contact-icon {
+  background: var(--saffron-fill);
+  color: #000;
+}
+.contact-btn:active .contact-icon {
+  transform: scale(0.95);
+}
+/* the hotline gently calls for attention */
+.contact-call .contact-icon {
+  animation: ring-pulse 2.8s ease-out infinite;
+}
+@keyframes ring-pulse {
+  0%,
+  60%,
+  100% {
+    box-shadow:
+      inset 0 0 0 1px rgb(var(--ink) / 0.12),
+      0 12px 30px var(--drop),
+      0 0 0 0 rgba(61, 155, 240, 0.5);
+  }
+  30% {
+    box-shadow:
+      inset 0 0 0 1px rgb(var(--ink) / 0.12),
+      0 12px 30px var(--drop),
+      0 0 0 12px rgba(61, 155, 240, 0);
+  }
+}
+.contact-label {
+  border-radius: 12px;
+  padding: 6px 11px;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  color: rgb(var(--ink));
+  background: rgb(var(--paper) / 0.8);
+  box-shadow: inset 0 0 0 1px rgb(var(--ink) / 0.1);
+  opacity: 0;
+  transform: translateX(8px);
+  pointer-events: none;
+  transition:
+    opacity 0.25s ease,
+    transform 0.25s ease;
+}
+.contact-btn:hover .contact-label,
+.contact-btn:focus-visible .contact-label {
+  opacity: 1;
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .contact-call .contact-icon {
+    animation: none;
+  }
+}
+
+/* ---- Booking dock ---- */
+
+/* The airport search box: its caret shows focus; a thin blue line under it confirms it. */
+.dock-surface input:focus-visible {
+  outline: none;
+  box-shadow: inset 0 -1px 0 rgba(61, 155, 240, 0.6);
+}
+
+/*
+ * Trip type as folder tabs on the dock's top edge: the chosen tab is part of
+ * the dock (same surface, joined by curved feet, bright label); the
+ * other sits a step behind it.
+ */
+.folder-tabs {
+  position: absolute;
+  bottom: 100%;
+  left: 0; /* flush with the dock's left edge, whose corner squares off beneath */
+  display: flex;
+  align-items: flex-end;
+}
+.dock-tabbed {
+  border-top-left-radius: 0;
+}
+/* the leftmost tab runs straight down into the dock's edge: no foot there */
+.folder-tab:first-child.folder-tab-active::before {
+  display: none;
+}
+.folder-tab {
+  position: relative;
+  margin-right: -6px;
+  padding: 7px 20px 7px;
+  border-radius: 14px 14px 0 0;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-ash);
+  background: var(--tab-bg);
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+  box-shadow:
+    inset 0 1px 0 rgb(var(--ink) / 0.07),
+    inset 1px 0 0 rgb(var(--ink) / 0.05),
+    inset -1px 0 0 rgb(var(--ink) / 0.05);
+  transition:
+    color 0.25s ease,
+    background-color 0.25s ease,
+    padding 0.25s ease;
+}
+.folder-tab:hover:not(.folder-tab-active) {
+  color: var(--color-saffron);
+}
+.folder-tab-active {
+  z-index: 1;
+  margin-bottom: -1px; /* covers the dock's hairline beneath it */
+  padding: 10px 22px 8px;
+  color: var(--color-azure);
+  background: rgb(var(--paper) / 0.8);
+  box-shadow:
+    inset 0 1px 0 rgb(var(--ink) / 0.09),
+    inset 1px 0 0 rgb(var(--ink) / 0.09),
+    inset -1px 0 0 rgb(var(--ink) / 0.09);
+}
+/* the curved feet where the tab meets the dock */
+.folder-tab-active::before,
+.folder-tab-active::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  width: 12px;
+  height: 12px;
+  pointer-events: none;
+}
+.folder-tab-active::before {
+  left: -12px;
+  background: radial-gradient(circle at 0 0, transparent 11.5px, rgb(var(--paper) / 0.8) 12px);
+}
+.folder-tab-active::after {
+  right: -12px;
+  background: radial-gradient(circle at 100% 0, transparent 11.5px, rgb(var(--paper) / 0.8) 12px);
+}
+
+/* Text inputs in checkout and My trips */
+.input {
+  display: block;
+  width: 100%;
+  padding: 11px 14px;
+  border-radius: 14px;
+  background: rgb(var(--ink) / 0.04);
+  box-shadow: inset 0 0 0 1px rgb(var(--ink) / 0.1);
+  color: rgb(var(--ink));
+  font-size: 16px;
+  outline: none;
+  transition:
+    box-shadow 0.25s ease,
+    background-color 0.25s ease;
+}
+/* one box per digit of a texted code */
+.input.otp-box {
+  width: 48px;
+  height: 56px;
+  padding: 0;
+  text-align: center;
+  font-size: 24px;
+  font-variant-numeric: tabular-nums;
+  caret-color: var(--color-azure);
+}
+@media (max-width: 380px) {
+  .input.otp-box {
+    width: 42px;
+    height: 52px;
+  }
+}
+.input::placeholder {
+  color: var(--color-ash);
+}
+.input:hover {
+  box-shadow: inset 0 0 0 1px rgba(245, 168, 48, 0.6);
+}
+.dock-surface .input:focus-visible,
+.input:focus {
+  background: rgba(61, 155, 240, 0.08);
+  box-shadow: inset 0 0 0 1px var(--color-azure);
+}
+.input[aria-invalid="true"] {
+  box-shadow: inset 0 0 0 1px var(--color-saffron);
+}
+
+/* My trips: each booking on a lifted card, so it reads clearly over the particles */
+.trip-card {
+  border-radius: 18px;
+  padding: 16px 18px;
+  background: var(--card-bg);
+  box-shadow: inset 0 0 0 1px rgb(var(--ink) / 0.1);
+}
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 12px;
+  line-height: 1.3;
+}
+.status-info {
+  color: var(--color-azure);
+  background: rgba(61, 155, 240, 0.12);
+}
+.status-warn {
+  color: var(--color-saffron);
+  background: rgba(245, 168, 48, 0.14);
+}
+.status-muted {
+  color: var(--color-ash);
+  background: rgb(var(--ink) / 0.06);
+}
+/* Heads-up on a ticket: when to check in, board, be at the plane */
+.notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  border-radius: 16px;
+  padding: 12px 14px;
+  font-size: 15px;
+  line-height: 1.4;
+}
+.notice > span:first-child {
+  display: inline-flex;
+  width: 20px;
+  height: 20px;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+.notice-info {
+  color: var(--notice-info-ink);
+  background: rgba(61, 155, 240, 0.12);
+  box-shadow: inset 0 0 0 1px rgba(61, 155, 240, 0.35);
+}
+.notice-info > span:first-child {
+  background: var(--azure-fill);
+  color: var(--on-azure);
+}
+.notice-warn {
+  color: var(--notice-warn-ink);
+  background: rgba(245, 168, 48, 0.12);
+  box-shadow: inset 0 0 0 1px rgba(245, 168, 48, 0.5);
+}
+.notice-warn > span:first-child {
+  background: var(--saffron-fill);
+  color: #000;
+}
+.notice-muted {
+  color: var(--color-mist);
+  background: rgb(var(--ink) / 0.05);
+}
+.notice-muted > span:first-child {
+  background: rgb(var(--ink) / 0.2);
+  color: rgb(var(--ink));
+}
+.timeline {
+  display: grid;
+  gap: 10px;
+  border-left: 1px solid rgb(var(--ink) / 0.14);
+  padding-left: 16px;
+}
+.timeline li {
+  position: relative;
+  display: grid;
+}
+.timeline li::before {
+  content: "";
+  position: absolute;
+  left: -20.5px;
+  top: 6px;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--azure-fill);
+  box-shadow: 0 0 0 3px rgb(var(--paper) / 0.8);
+}
+.timeline li.timeline-past {
+  opacity: 0.45;
+}
+.timeline li.timeline-past::before {
+  background: rgb(var(--ink) / 0.4);
+}
+
+/* Toasts */
+.toast {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  border-radius: 18px;
+  padding: 12px 14px;
+  background: var(--toast-bg);
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+  box-shadow:
+    inset 0 0 0 1px rgb(var(--ink) / 0.1),
+    0 18px 40px var(--drop);
+  animation: toast-in 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.toast-leaving {
+  animation: toast-out 0.3s ease-in both;
+}
+.toast-mark {
+  display: inline-flex;
+  width: 22px;
+  height: 22px;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  color: rgb(var(--paper));
+  background: rgb(var(--ink));
+}
+.toast-success {
+  box-shadow:
+    inset 3px 0 0 var(--color-azure),
+    inset 0 0 0 1px rgba(61, 155, 240, 0.4),
+    0 18px 40px var(--drop);
+}
+.toast-success .toast-mark {
+  background: var(--azure-fill);
+  color: var(--on-azure);
+}
+.toast-warning {
+  box-shadow:
+    inset 3px 0 0 var(--color-saffron),
+    inset 0 0 0 1px rgba(245, 168, 48, 0.45),
+    0 18px 40px var(--drop);
+}
+.toast-warning .toast-mark {
+  background: var(--saffron-fill);
+  color: #000;
+}
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.98);
+  }
+}
+@keyframes toast-out {
+  to {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+}
+
+/*
+ * The scrolling part of a panel: 24px either side, like the booking dock's
+ * fields. The scrollbar's lane (8px) is always reserved, so nothing shifts
+ * when it appears; the right padding makes up the rest of the 24px.
+ */
+.panel-scroll {
+  padding-left: 24px;
+  padding-right: 16px;
+  scrollbar-gutter: stable;
+}
+
+/* Panels rise out of the dock as they open (and sink back into it as they close — see BookingDock) */
+.panel-in {
+  transform-origin: 50% 100%;
+  animation: panel-rise 0.55s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+@keyframes panel-rise {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.985);
+  }
+}
+.fade-up {
+  animation: rise-in 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}
+
+/* Fields (from, to, dates, travellers): yellow on hover, blue while open */
+.field {
+  transition:
+    background-color 0.25s ease,
+    box-shadow 0.25s ease;
+}
+.field-label {
+  color: var(--color-ash);
+  transition: color 0.25s ease;
+}
+.field:hover {
+  background: rgb(var(--ink) / 0.04);
+}
+.field:hover .field-label {
+  color: var(--color-saffron);
+}
+.field-active,
+.field-active:hover {
+  background: rgba(61, 155, 240, 0.12);
+  box-shadow: inset 0 0 0 1px rgba(61, 155, 240, 0.55);
+}
+.field-active .field-label,
+.field-active:hover .field-label {
+  color: var(--color-azure);
+}
+
+/* Calendar days */
+.day {
+  color: rgb(var(--ink));
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+.day:hover:not(:disabled):not(.day-active) {
+  color: var(--color-saffron);
+  box-shadow: inset 0 0 0 1px var(--color-saffron);
+}
+.day:disabled {
+  opacity: 0.25;
+  cursor: not-allowed;
+}
+.day-today {
+  box-shadow: inset 0 0 0 1px rgb(var(--ink) / 0.25);
+}
+.day-active {
+  background: var(--color-brand);
+  color: #fff;
+  box-shadow: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .link-wave::after {
+    animation: none;
+  }
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
 }
