@@ -1,3 +1,5 @@
+import { VIRGO_CYCLE, VIRGO_FADE, VIRGO_HOLD } from "./virgo";
+
 /** Hover tuning, in world units at the focal plane (z = 0). */
 export const HOVER = {
   radius: 1.95, // reach of the effect around the cursor
@@ -11,18 +13,50 @@ export const HOVER = {
  * tetrahedra of all as they go by.
  */
 const PASS = {
-  share: 0.025, // of all particles
+  share: 0.045, // of all particles
   reach: 0.45, // how wide of the viewer's eye they pass, view units
   behind: 2.5, // where they head for, behind the viewer
   end: 0.85, // share of the move spent flying past; then they turn up as a star
 };
 
 /**
- * The fly-through: as a model bursts into the open sky, the nearer stars
- * stream toward the viewer (by uTravel, world units) — fully within `near`
- * of the viewer, not at all beyond `far`, so the deep sky stays put.
+ * The fly-through: through the open-sky chapters the deep sky streams toward
+ * the viewer by uTravel (world units, scrubbed by the scroll) — the nearer
+ * the star, the further it moves (falling off as e^(−distance / scale)), so
+ * the near stars rush up to the screen and past it while the far haze, 100
+ * units out, barely stirs and never thins out. Each star comes in along its
+ * own line of sight, drifting outward only a little (`DRIFT`), so it grows
+ * where it is on screen until it passes right by — a straight dolly would
+ * carry every near star off the sides of the frame long before it got close.
  */
-const FLOW ={ near: 4, far: 28 };
+export const FLOW_SCALE = 30;
+/**
+ * Flight lines: dot size on the map and the globe, and the pulses that
+ * travel them — each line gets one every PERIOD.min–max seconds (its own
+ * rhythm), taking TRAVEL seconds end to end, alternating direction; the lit
+ * stretch is TAIL of the line long.
+ */
+const ROUTE = { mapSize: 0.34, globeSize: 0.5, travel: 4, periodMin: 6, periodSpread: 6, tail: 0.32 };
+const DRIFT = 0.25; // 0 = straight down its line of sight, 1 = a straight dolly
+/** How much larger a fully glowing star's sprite is drawn, to make room for its halo. */
+const BLOOM = 0.9;
+
+/**
+ * GLSL shared by the particle field and the background: one way to recolour
+ * for a light page, and the stream toward the viewer.
+ */
+const SHARED = /* glsl */ `
+// On a light page, pale blues and the logo's yellow would wash out: deepen
+// and saturate (the gamma curve darkens light tints most).
+vec3 forTheme(vec3 c, float theme) { return mix(c, pow(c, vec3(1.8)) * 0.86, theme); }
+// A star (view space) after streaming toward the viewer by travel; it's
+// behind the screen (z > 0) once it has passed.
+vec3 flown(vec3 v, float travel) {
+  float d0 = max(-v.z, 0.05);
+  float d1 = d0 - travel * exp(-d0 / ${FLOW_SCALE.toFixed(1)});
+  return vec3(v.xy * pow(max(d1, 0.02) / d0, ${(1 - DRIFT).toFixed(2)}), -d1);
+}
+`;
 
 export const vertexShader = /* glsl */ `
 #define PI 3.14159265
@@ -30,8 +64,7 @@ export const vertexShader = /* glsl */ `
 #define PASS_REACH ${PASS.reach.toFixed(3)}
 #define PASS_BEHIND ${PASS.behind.toFixed(3)}
 #define PASS_END ${PASS.end.toFixed(3)}
-#define FLOW_NEAR ${FLOW.near.toFixed(3)}
-#define FLOW_FAR ${FLOW.far.toFixed(3)}
+${SHARED}
 
 uniform float uMorph;      // 0 plane · 1 open sky · 2 Vietnam · 3 globe · 4 boarding pass · 5 logo
 uniform float uTime;
@@ -62,6 +95,7 @@ uniform vec2 uHalfView;    // half the view size at the focal plane, world units
 uniform float uHover;      // pointer presence 0..1
 uniform float uSkyBoost;   // 1 while the loading screen is up: the sky shines at full strength
 uniform float uTheme;      // 0 dark page, 1 light page: colours deepen so they read on white
+uniform float uMotion;     // 1: flight lines animate; 0 (reduced motion): they hold still, lit
 
 attribute vec3 aP0; // plane (model space)
 attribute vec3 aP1; // deep sky (WORLD space)
@@ -71,7 +105,8 @@ attribute vec3 aP4; // boarding pass (model space)
 attribute vec3 aP5; // company logo (model space)
 // Packed tight to stay well within the GPU's vertex-attribute limit.
 attribute vec4 aActive;    // part of plane / map / globe / ticket? otherwise it waits as a star
-attribute vec4 aShapeSize; // size factor in plane / map / globe / ticket; negative = accent colour
+attribute vec4 aShapeSize; // in plane / map / globe / ticket: colour class × 10 + size factor
+attribute vec3 aNormal;    // the plane's surface normal here (model space)
 attribute vec4 aOrder;     // timings: plane scatter, map gather, map→globe sweep, globe→ticket sweep
 attribute vec4 aLogo;      // in the logo?, ticket→logo timing, size factor, colour as r·65536+g·256+b
 attribute vec4 aColorRand; // palette colour, random 0..1
@@ -81,6 +116,7 @@ varying float vAlpha;
 varying float vSize;
 varying float vHover;
 varying float vBlur;
+varying float vGlow; // 0..1: a star lighting up (the background's Virgo); fills its faces and blooms a halo
 
 // Smootherstep: starts and stops without a jolt, so each particle glides.
 float ease(float t) { return t * t * t * (t * (t * 6.0 - 15.0) + 10.0); }
@@ -95,8 +131,38 @@ float pick(vec4 v, float s) {
 }
 
 float activeOf(float s) { return s > 4.5 ? aLogo.x : pick(aActive, s); }
-float shapeSizeOf(float s) { return s > 4.5 ? aLogo.z : abs(pick(aShapeSize, s)); }
-float accentOf(float s) { return s > 4.5 ? 0.0 : (pick(aShapeSize, s) < 0.0 ? 1.0 : 0.0); }
+float tintOf(float s) { return s > 4.5 ? 0.0 : floor(pick(aShapeSize, s) / 10.0); }
+
+// A flight-line dot (colour class 8): which line it's on, how far along (0..1).
+vec2 routeOf(float s) {
+  float f = floor((pick(aShapeSize, s) - 80.0) * 32768.0 + 0.5);
+  return vec2(floor(f / 512.0), mod(f, 512.0) / 511.0);
+}
+// A flight travelling this dot's line right now: x = 1 where its trail has
+// reached (the whole way back to the origin), y = 1 at its head, easing off
+// over a short stretch behind it. When the head lands, the trail holds a
+// moment and fades, ready for the next flight (the other way).
+vec2 routeLit(float s) {
+  if (uMotion < 0.5) return vec2(1.0, 0.0);
+  vec2 r = routeOf(s);
+  float h = fract(sin((r.x + s * 17.0) * 12.9898 + 4.1) * 43758.5453);
+  float period = ${ROUTE.periodMin.toFixed(1)} + ${ROUTE.periodSpread.toFixed(1)} * h;
+  float clock = uTime + h * 37.0;
+  float k = floor(clock / period);
+  float head = (clock - k * period) / ${ROUTE.travel.toFixed(1)};
+  // every other flight goes the other way
+  float behind = mod(k, 2.0) < 0.5 ? head - r.y : r.y - (1.0 - head);
+  float landed = 1.0 - smoothstep(1.15, 1.5, head);
+  float trail = smoothstep(-0.02, 0.0, behind) * landed;
+  float lead = (1.0 - smoothstep(0.0, ${ROUTE.tail.toFixed(2)}, behind)) * trail;
+  return vec2(trail, lead);
+}
+
+float shapeSizeOf(float s) {
+  if (s > 4.5) return aLogo.z;
+  if (tintOf(s) > 7.5 && tintOf(s) < 8.5) return (s > 2.5 && s < 3.5 ? ${ROUTE.globeSize.toFixed(2)} : ${ROUTE.mapSize.toFixed(2)}) * (uMotion < 0.5 ? 1.0 : 1.0 + 0.6 * routeLit(s).x + 1.8 * routeLit(s).y);
+  return mod(pick(aShapeSize, s), 10.0);
+}
 float modelSizeOf(float s) { return s > 4.5 ? uLogo.x : pick(uModelSize, s); }
 float depthKOf(float s) { return s > 4.5 ? uLogo.y : pick(uModelDepth, s); }
 float radiusOf(float s) { return s > 4.5 ? uLogo.z : pick(uModelR, s); }
@@ -119,8 +185,8 @@ vec3 modelPos(float s) {
 
 vec3 centerOf(mat4 mv) { return (mv * vec4(0.0, 0.0, 0.0, 1.0)).xyz; }
 
-// The particle's colour while part of model s: the logo's own colours there,
-// saffron for flight lines, otherwise its palette colour.
+// The particle's colour while part of model s: the logo's own colours there;
+// else its colour class (TINT in shapes.ts), or its own palette colour.
 vec3 colorOf(float s) {
   if (s > 4.5) {
     float c = aLogo.w;
@@ -130,8 +196,46 @@ vec3 colorOf(float s) {
     // deepening applied at the end, so they come out true.
     return mix(min(mix(brand, vec3(1.0), 0.1) * 1.25, vec3(1.0)), pow(brand, vec3(1.0 / 1.8)), uTheme);
   }
-  return mix(aColorRand.rgb, vec3(0.961, 0.659, 0.188), accentOf(s));
+  float t = tintOf(s);
+  if (t < 0.5) return aColorRand.rgb;
+  if (t < 1.5) return vec3(0.961, 0.659, 0.188); // the logo's yellow: flight lines on the globe
+  if (t < 2.5) return vec3(0.3, 0.66, 1.0); // provinces with a domestic airport: blue
+  if (t < 3.5) return vec3(1.0, 0.78, 0.3); // …with an international airport: gold
+  if (t < 4.5) return vec3(1.0, 0.24, 0.22); // Vietnam on the globe: red
+  // routes and airports over the map: pale on a dark page, navy on a light one
+  // (pre-lightened, as the light page deepens every colour at the end)
+  if (t < 5.5) return mix(vec3(0.9, 0.94, 1.0), vec3(0.2, 0.44, 0.7), uTheme);
+  if (t < 6.5) return mix(aColorRand.rgb, vec3(0.45, 0.58, 0.76), 0.5) * 0.95; // province lines: quiet
+  if (t < 7.5) return mix(vec3(0.82, 0.92, 1.0), vec3(0.16, 0.36, 0.62), uTheme); // the coast
+  // flight lines: grey at rest, the logo's yellow where a pulse is passing
+  if (t > 8.5) return mix(vec3(0.82, 0.9, 1.0), vec3(0.2, 0.36, 0.58), uTheme); // country borders
+  // flight lines: grey at rest; the trail of a flight yellow back to its origin, brightest at the head
+  vec2 lit = routeLit(s);
+  return mix(vec3(0.74, 0.8, 0.88), mix(vec3(0.85, 0.6, 0.18), vec3(1.0, 0.82, 0.4), lit.y), lit.x);
 }
+
+// How strongly model s draws this particle, by its colour class: on the
+// map the province lines are faint, the coast a dim hairline, the flight
+// lines a quiet grey, yellow behind a flight, brightest at its head.
+float tintAlpha(float s) {
+  float t = tintOf(s);
+  if (t < 5.5) return 1.0;
+  if (t < 6.5) return 0.3;
+  if (t < 7.5) return 0.55;
+  if (t > 8.5) return 0.9; // country borders
+  vec2 lit = routeLit(s);
+  return uMotion < 0.5 ? 0.9 : mix(0.62, mix(0.72, 1.0, lit.y), lit.x);
+}
+
+// How squarely the plane's surface faces the viewer where this particle sits
+// (1 head-on, 0 edge-on, below 0 facing away); viewPos is its view position.
+float facingOf(vec3 viewPos) { return dot(normalize(mat3(uMV0) * aNormal), normalize(-viewPos)); }
+// Surface depth: on every curve of the plane — fuselage, upper deck, engines —
+// the crest turned to the viewer is drawn largest, its flanks smaller as they
+// turn away, the far side smallest; so the surface itself reads, not only the
+// plane's overall depth.
+float surfaceSize(float facing) { return mix(0.3, 1.3, smoothstep(-0.35, 0.95, facing)); }
+float surfaceFade(float facing) { return mix(0.55, 1.0, smoothstep(-0.3, 0.7, facing)); }
 
 // This particle's share of a sweep; x is the phase progress 0..1.
 float sweep(float x, float order, float spread, float width) {
@@ -172,9 +276,12 @@ void main() {
 
   vec3 sky = aP1 + vec3(sin(uTime * 0.12 + rnd * 30.0), cos(uTime * 0.1 + rnd * 17.0), 0.0) * 0.25;
   vec3 skyV = (viewMatrix * vec4(sky, 1.0)).xyz;
-  // The fly-through: as the models burst, the nearer stars stream toward the
-  // viewer and on past the screen; the deep sky stays where it is.
-  skyV.z += uTravel * (1.0 - smoothstep(FLOW_NEAR, FLOW_FAR, -skyV.z));
+  // The fly-through: through the open sky the stars stream toward the viewer,
+  // the near ones up to the screen and past it. A model bursting outward
+  // flies with them — those headed for a star that's now at or behind the
+  // screen go straight through it — and the map gathers some back in from
+  // behind the viewer.
+  skyV = flown(skyV, uTravel);
   vec3 A = actA > 0.5 ? (mvOf(idx) * vec4(modelPos(idx), 1.0)).xyz : skyV;
   vec3 B = actB > 0.5 ? (mvOf(next) * vec4(modelPos(next), 1.0)).xyz : skyV;
 
@@ -230,10 +337,16 @@ void main() {
   float dB = actB > 0.5 ? depthIn(B, next) : 0.0;
   float kA = actA > 0.5 ? depthKOf(idx) : 0.0;
   float kB = actB > 0.5 ? depthKOf(next) : 0.0;
-  float szA = actA > 0.5 ? shapeSizeOf(idx) * modelSizeOf(idx) * tierOf(dA, kA) : 1.0;
+  // the plane (only ever where a move starts) also by how its surface faces the viewer
+  float facing = actA > 0.5 && idx < 0.5 ? facingOf(A) : 1.0;
+  float szA = actA > 0.5 ? shapeSizeOf(idx) * modelSizeOf(idx) * tierOf(dA, kA) * (idx < 0.5 ? surfaceSize(facing) : 1.0) : 1.0;
   float szB = actB > 0.5 ? shapeSizeOf(next) * modelSizeOf(next) * tierOf(dB, kB) : 1.0;
   float sizeK = mix(szA, szB, t);
-  float fade = mix(fadeOf(dA, kA), fadeOf(dB, kB), t);
+  float fade = mix(
+    fadeOf(dA, kA) * (idx < 0.5 ? surfaceFade(facing) : 1.0) * (actA > 0.5 ? tintAlpha(idx) : 1.0),
+    fadeOf(dB, kB) * (actB > 0.5 ? tintAlpha(next) : 1.0),
+    t
+  );
   vec3 color = mix(actA > 0.5 ? colorOf(idx) : aColorRand.rgb, actB > 0.5 ? colorOf(next) : aColorRand.rgb, t);
 
   // Stars shine brightest when the open sky is the whole show.
@@ -288,20 +401,21 @@ void main() {
 
   gl_Position = projectionMatrix * vec4(view, 1.0);
 
-  // Perspective: stars keep the full range — distant ones are specks, those
-  // passing close by the viewer the largest of all; models get a tamer version.
+  // Perspective: stars keep the full range — the sky runs 100 units deep, the
+  // farthest stars specks, those passing right by the viewer the largest of
+  // all; models get a tamer version.
   float persp = uCamZ / max(-view.z, 0.5);
-  float perspK = mix(clamp(persp, 0.14, 18.0), clamp(persp, 0.35, 2.2), model);
+  float perspK = mix(clamp(persp, 0.16, 18.0), clamp(persp, 0.35, 2.2), model);
   float size = uSize * uPixelRatio * jitter * perspK * sizeK * (1.0 + hover * ${HOVER.grow.toFixed(3)});
   float ps = clamp(size, 1.2 * uPixelRatio, uMaxPoint);
   gl_PointSize = ps;
   vSize = ps;
 
-  // Depth of field: the nearest stars go soft, the farthest dim. Right at the
-  // viewer a particle fades as it passes, and a big one fades out at the
-  // frame's edge rather than popping when its centre leaves the frame.
+  // Depth of field: the nearest stars go soft, the farthest fade into a haze.
+  // Right at the viewer a particle fades as it passes, and a big one fades
+  // out at the frame's edge rather than popping when its centre leaves it.
   float blur = (1.0 - model) * smoothstep(1.4, 3.0, persp);
-  float farDim = mix(1.0, mix(0.5, 1.0, smoothstep(0.14, 0.6, persp)), 1.0 - model);
+  float farDim = mix(1.0, mix(0.5, 1.0, smoothstep(0.14, 0.7, persp)), 1.0 - model);
   float passing = smoothstep(0.3, 1.1, -view.z);
   vec2 toEdge = (1.0 - abs(gl_Position.xy / max(gl_Position.w, 0.001))) * uViewport * 0.5;
   float atEdge = smoothstep(0.0, ps * 0.5, min(toEdge.x, toEdge.y));
@@ -315,13 +429,148 @@ void main() {
     gl_PointSize = 0.0;
   }
   vBlur = blur;
-  // On a light page, pale blues and the logo's yellow would wash out: deepen
-  // and saturate every colour (the gamma curve darkens light tints most).
-  // Models show a touch more; the stars behind a touch less, so the sky stays
-  // quiet behind the copy.
-  vColor = mix(color, pow(color, vec3(1.8)) * 0.86, uTheme);
+  // On a light page models show a touch more and the stars behind a touch
+  // less, so the sky stays quiet behind the copy.
+  vColor = forTheme(color, uTheme);
   vAlpha = min(1.0, vAlpha * (1.0 + uTheme * (0.25 * model - 0.3 * (1.0 - model))));
   vHover = hover;
+  vGlow = 0.0;
+}
+`;
+
+/**
+ * The background (see buildAmbient): a deep field of stars that flies through
+ * with the open sky, and Virgo — fixed, as if infinitely far, fitted to the
+ * screen by uVirgo / uVirgoOffset. Its main stars light up one by one along
+ * the figure, each with a brief flare, the dotted lines drawing between them;
+ * the lit figure holds, then fades, and the round begins again.
+ */
+export const skyVertexShader = /* glsl */ `
+#define CYCLE ${VIRGO_CYCLE.toFixed(1)}
+#define HOLD ${VIRGO_HOLD.toFixed(1)}
+#define FADE ${VIRGO_FADE.toFixed(1)}
+${SHARED}
+
+uniform float uMorph;
+uniform float uTime;
+uniform float uAppear;
+uniform float uSkyBoost;
+uniform float uTravel;
+uniform float uTheme;
+uniform float uSize;
+uniform float uPixelRatio;
+uniform float uMaxPoint;
+uniform vec2 uViewport;
+uniform float uCamZ;
+uniform float uFieldOpacity; // the deep field's strength (Virgo keeps its own)
+uniform vec4 uVirgo;         // scale (sky → camera tangent units), cos and sin of its turn
+uniform vec2 uVirgoOffset;   // centring, camera tangent units
+
+// position: field stars in WORLD space; everything else in sky tangent units + depth
+attribute vec4 aColorRand;   // colour, random 0..1
+attribute vec4 aStar;        // kind (0 field · 1 Virgo · 2 figure line · 3 neighbour · 4 galaxy), lights up at (s), size
+
+varying vec3 vColor;
+varying float vAlpha;
+varying float vSize;
+varying float vHover;
+varying float vBlur;
+varying float vGlow; // 0..1: a star lighting up (the background's Virgo); fills its faces and blooms a halo
+
+void main() {
+  float rnd = aColorRand.a;
+  float kind = aStar.x;
+  bool fieldStar = kind < 0.5;
+
+  vec3 view;
+  if (fieldStar) {
+    vec3 w = position + vec3(sin(uTime * 0.12 + rnd * 30.0), cos(uTime * 0.1 + rnd * 17.0), 0.0) * 0.25;
+    view = flown((viewMatrix * vec4(w, 1.0)).xyz, uTravel);
+  } else {
+    vec2 p = position.xy;
+    vec2 dir = vec2(p.x * uVirgo.y - p.y * uVirgo.z, p.x * uVirgo.z + p.y * uVirgo.y) * uVirgo.x + uVirgoOffset;
+    view = vec3(dir * position.z, -position.z);
+  }
+  gl_Position = projectionMatrix * vec4(view, 1.0);
+  float persp = uCamZ / max(-view.z, 0.5);
+
+  // The stars shine brightest when the open sky is the whole show (and on the loading screen).
+  float idx = min(floor(uMorph), 5.0);
+  float f = uMorph - idx;
+  float skyStage = idx < 0.5 ? smoothstep(0.3, 1.0, f) : (idx < 1.5 ? 1.0 - smoothstep(0.0, 0.7, f) : 0.0);
+  skyStage = max(skyStage, uSkyBoost);
+
+  // Virgo's round: lit from its moment on until the figure fades; main stars flare as they light.
+  float tc = mod(uTime + 2.0, CYCLE);
+  float on = aStar.y;
+  float lit = 0.0;
+  float flare = 0.0;
+  if (kind > 0.5 && kind < 2.5) {
+    lit = smoothstep(on - 0.25, on + 0.9, tc) * (1.0 - smoothstep(HOLD, FADE, tc));
+    if (kind < 1.5) flare = smoothstep(on - 0.3, on + 0.35, tc) * (1.0 - smoothstep(on + 0.35, on + 2.8, tc));
+  }
+
+  float unit = uSize * uPixelRatio;
+  float size;
+  float alpha;
+  float blur = 0.0;
+  vec3 color = aColorRand.rgb;
+  if (fieldStar) {
+    // depth of field: far ones specks in a dim haze, the nearest large and soft
+    size = unit * (0.9 + 0.2 * fract(rnd * 17.31)) * clamp(persp, 0.16, 18.0);
+    blur = smoothstep(1.4, 3.0, persp);
+    float farDim = mix(0.5, 1.0, smoothstep(0.14, 0.7, persp));
+    float twinkle = 0.8 + 0.2 * sin(uTime * 2.6 + rnd * 40.0);
+    alpha = uFieldOpacity * twinkle * farDim * (1.0 - 0.45 * blur) * mix(0.3, 1.0, skyStage);
+  } else if (kind < 1.5 || (kind > 2.5 && kind < 3.5)) {
+    // Virgo's stars and their neighbours: sized by brightness, a little by distance
+    size = unit * aStar.z * pow(persp / 0.35, 0.3) * (1.0 + 0.25 * lit + 0.9 * flare);
+    float twinkle = 0.9 + 0.1 * sin(uTime * 1.3 + rnd * 40.0);
+    float rest = kind < 1.5 ? 0.62 : 0.45;
+    alpha = twinkle * mix(rest, 1.0, max(lit, flare)) * mix(0.45, 1.0, skyStage);
+  } else if (kind < 2.5) {
+    // the figure's lines: barely there until the sequence draws them
+    size = unit * aStar.z;
+    alpha = mix(0.06, 0.6, lit) * mix(0.6, 1.0, skyStage);
+  } else {
+    // the Virgo Cluster's galaxies: faint, soft, far
+    size = unit * aStar.z * clamp(persp, 0.12, 1.0) * 2.2;
+    blur = 0.7;
+    alpha = 0.4 * mix(0.55, 1.0, skyStage);
+  }
+
+  // Virgo's stars carry a faint glow that blooms as they light and flare;
+  // the neighbours a hint of one; the galaxies are all soft glow. The sprite
+  // grows to make room for the halo around the tetrahedron.
+  // Behind a model the glow settles, so the sky never competes with it.
+  float glowAmt = kind < 0.5 || (kind > 1.5 && kind < 2.5)
+    ? 0.0
+    : (kind < 1.5 ? min(1.0, 0.25 + 0.35 * lit + 0.65 * flare) : (kind < 3.5 ? 0.18 : 0.55)) * mix(0.35, 1.0, skyStage);
+  float ps = clamp(size, 1.2 * uPixelRatio, uMaxPoint) * (1.0 + ${BLOOM.toFixed(2)} * glowAmt);
+  gl_PointSize = ps;
+  vSize = ps;
+  vGlow = glowAmt;
+
+  // Right at the viewer a passing star fades; a big one fades at the frame's edge rather than popping.
+  float passing = smoothstep(0.3, 1.1, -view.z);
+  vec2 toEdge = (1.0 - abs(gl_Position.xy / max(gl_Position.w, 0.001))) * uViewport * 0.5;
+  float atEdge = smoothstep(0.0, ps * 0.5, min(toEdge.x, toEdge.y));
+  vAlpha = alpha * uAppear * passing * atEdge;
+  if (vAlpha < 0.004) {
+    gl_Position = vec4(2.0, 2.0, 2.0, 1.0);
+    gl_PointSize = 0.0;
+  }
+
+  // Lit stars warm toward white on a dark page; on a light page Virgo leans
+  // into the logo's blue, deepening to navy as it lights.
+  float glow = fieldStar ? 0.0 : 0.35 * lit + 0.5 * flare;
+  color = mix(color, vec3(1.0, 0.97, 0.88), glow * (1.0 - uTheme));
+  color = forTheme(color, uTheme);
+  if (!fieldStar) color = mix(color, mix(vec3(0.04, 0.33, 0.68), vec3(0.02, 0.16, 0.4), min(1.0, glow * 1.6)), uTheme * (0.45 + 0.5 * glow));
+  vColor = color;
+  vAlpha = min(1.0, vAlpha * (1.0 + uTheme * (fieldStar ? -0.3 : 0.2)));
+  vBlur = blur;
+  vHover = 0.0;
 }
 `;
 
@@ -341,6 +590,7 @@ varying float vAlpha;
 varying float vSize;
 varying float vHover;
 varying float vBlur;
+varying float vGlow; // 0..1: a star lighting up (the background's Virgo); fills its faces and blooms a halo
 
 float segDist(vec2 p, vec2 a, vec2 b) {
   vec2 pa = p - a;
@@ -363,12 +613,16 @@ float inside(vec2 p, vec2 a, vec2 b, vec2 c) {
 }
 
 void main() {
-  vec2 uv = gl_PointCoord * 2.0 - 1.0;
+  // A glowing star's sprite is drawn larger (see the sky shader); its
+  // tetrahedron keeps its size in the middle and the halo fills the rest.
+  float bloom = 1.0 + ${BLOOM.toFixed(2)} * vGlow;
+  vec2 uv = (gl_PointCoord * 2.0 - 1.0) * bloom;
   uv.y = -uv.y;
 
-  float pxUnit = vSize * 0.5; // px per sprite unit
+  float body0 = vSize / bloom; // px across the tetrahedron itself
+  float pxUnit = body0 * 0.5; // px per sprite unit
   // Out-of-focus stars get soft edges — the bigger (nearer) the softer.
-  float stroke = clamp(vSize * 0.05, 0.55, 1.3) + vBlur * vSize * 0.004;
+  float stroke = clamp(body0 * 0.05, 0.55, 1.3) + vBlur * body0 * 0.004;
   float aa = 0.5 + vBlur * (2.0 + vSize * 0.012);
 
   // Edges: back edges dimmer, so the solid reads in depth.
@@ -387,11 +641,14 @@ void main() {
   shade = max(shade, uFace.z * inside(uv, v[0], v[3], v[1]));
   shade = max(shade, uFace.w * inside(uv, v[1], v[2], v[3]));
 
-  float a = max(edge, step(0.001, shade) * uFill * (1.0 - 0.5 * vBlur));
+  // A lit star's faces fill in, and a soft halo blooms around it.
+  float body = max(edge, step(0.001, shade) * mix(uFill, 0.85, vGlow) * (1.0 - 0.5 * vBlur));
+  float halo = vGlow * 0.5 * pow(max(0.0, 1.0 - length(uv) / bloom), 2.0);
+  float a = body + halo * (1.0 - body);
   if (a < 0.02) discard;
 
   vec3 col = mix(vColor, vec3(0.585), vHover); // hovered particles fade to grey
-  vec3 rgb = col * mix(shade, 1.0, edge);
+  vec3 rgb = (col * mix(shade, 1.0, edge) * body + col * halo * (1.0 - body)) / a;
   gl_FragColor = vec4(rgb, a * vAlpha * uOpacity);
 }
 `;

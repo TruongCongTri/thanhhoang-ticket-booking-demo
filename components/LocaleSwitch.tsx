@@ -1,6 +1,8 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { LOCALES, LOCALE_COOKIE, type Locale } from "@/lib/i18n";
+import { localizePath } from "@/lib/pages";
 
 /** Remembered for the next visit to "/" (proxy.ts reads it). */
 function remember(locale: Locale) {
@@ -8,10 +10,11 @@ function remember(locale: Locale) {
 }
 
 /**
- * EN / VI. Switching keeps your place: it opens the other language at the
- * section you're reading, and remembers the choice for next time.
+ * EN / VI. Switching keeps your place: it opens the same page in the other
+ * language, at the section you're reading, and remembers the choice for next time.
  */
 export default function LocaleSwitch({ locale, label }: { locale: Locale; label: string }) {
+  const pathname = usePathname();
   const go = (e: React.MouseEvent<HTMLAnchorElement>, to: Locale) => {
     e.preventDefault();
     if (to === locale) return;
@@ -20,7 +23,7 @@ export default function LocaleSwitch({ locale, label }: { locale: Locale; label:
     // A full load on purpose: the other language is its own root layout, and
     // the particle intro then gathers straight into this section's model.
     // eslint-disable-next-line @next/next/no-location-assign-relative-destination
-    window.location.assign(`/${to}${here}`);
+    window.location.assign(`${localizePath(pathname, to)}${here}`);
   };
   return (
     <span role="group" aria-label={label} className="t-nav hidden text-ash sm:inline">
@@ -28,7 +31,7 @@ export default function LocaleSwitch({ locale, label }: { locale: Locale; label:
         <span key={l}>
           {i > 0 && " / "}
           <a
-            href={`/${l}`}
+            href={localizePath(pathname, l)}
             hrefLang={l}
             lang={l}
             aria-current={l === locale ? "true" : undefined}

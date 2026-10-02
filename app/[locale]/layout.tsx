@@ -26,12 +26,22 @@ export async function generateMetadata({ params }: LayoutProps<"/[locale]">): Pr
   return {
     title: fill(meta.title, { brand: BRAND.name }),
     description: fill(meta.description, { brand: BRAND.name }),
-    icons: { icon: BRAND.logo.src },
+    icons: {
+      // app/favicon.ico is linked automatically by Next; these add the PNG sizes.
+      icon: [
+        { url: '/brand/thanh-hoang-logo.png', sizes: '32x32', type: 'image/png' },
+        { url: '/brand/thanh-hoang-logo.png', sizes: '192x192', type: 'image/png' },
+        { url: '/brand/thanh-hoang-logo.png', sizes: '512x512', type: 'image/png' },
+      ],
+      apple: { url: '/brand/thanh-hoang-logo.png', sizes: '180x180' },
+    },
     alternates: { languages: Object.fromEntries(LOCALES.map((l) => [l, `/${l}`])) },
   };
 }
 
 export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
   themeColor: [
     { media: "(prefers-color-scheme: dark)", color: "#000000" },
     { media: "(prefers-color-scheme: light)", color: "#f4f6fa" },

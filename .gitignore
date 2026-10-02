@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# geo build cache (scripts/build-geo.mjs downloads it)
+/scripts/data/ETOPO5.DAT

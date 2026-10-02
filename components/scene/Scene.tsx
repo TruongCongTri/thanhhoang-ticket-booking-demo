@@ -21,7 +21,8 @@ import {
   type LogoPixels,
   type ParticleData,
 } from "./shapes";
-import { fragmentShader, vertexShader } from "./shaders";
+import { fragmentShader, skyVertexShader, vertexShader } from "./shaders";
+import { virgoFit } from "./virgo";
 import { BRAND } from "@/lib/brand";
 import { LOAD, onPageStart } from "@/lib/loading";
 import { currentTheme, onThemeChange } from "@/lib/theme";
@@ -45,17 +46,22 @@ const GLOBE_RX = (GLOBE_FACING_LAT * Math.PI) / 180;
 /**
  * Particle size per model (plane, map, globe, ticket), and how strongly depth
  * sizes them — the plane gently, so its tail at the far end stays visible.
+ * (The plane is also sized by how its surface faces the viewer, the globe by
+ * the height of the land; these sizes are the average they work around.)
  */
-const MODEL_SIZE = new THREE.Vector4(1, 0.8, 0.85, 0.4);
+const MODEL_SIZE = new THREE.Vector4(1.15, 0.8, 1, 0.4);
 const MODEL_DEPTH = new THREE.Vector4(0.55, 0, 1, 0);
 const LOGO_SIZE = 0.55;
 const LOGO_DEPTH = 0.35;
 
 /**
- * How far the nearer stars stream toward the viewer (world units): as the
- * loading screen lifts, and as the plane bursts into the open sky.
+ * How far the nearest stars stream toward the viewer (world units; further
+ * out, less — see FLOW_SCALE in shaders.ts): as the loading screen lifts, and
+ * over the open-sky chapters, from the plane bursting to the map gathered.
+ * By the end the sky has streamed past the screen from about 17 units out;
+ * all the way, a star or two is right at the screen and a handful close by.
  */
-const TRAVEL = { loader: 3, spread: 6 };
+const TRAVEL = { loader: 3, spread: 27 };
 
 // The company logo at the end of the page. The loading screen shows the very
 // same logo (same size, so it reads the same), just centred.
@@ -68,12 +74,14 @@ const DESKTOP: Poses = {
   hero: { x: 2.0, y: -0.3, rx: 0.28, ry: -2.45, rz: 0.1, s: 2.0 },
   // nose (+X in model space) turned to face the camera
   noseIn: { x: 0, y: -0.25, rx: 0.1, ry: -Math.PI / 2, rz: 0, s: 1.7 },
-  mapCenter: { x: 0, y: 0.1, rx: -0.1, ry: 0, rz: 0, s: 1.2 },
-  mapLeft: { x: -4.3, y: 0.1, rx: -0.15, ry: 0.2, rz: 0, s: 1.22 },
-  // the whole globe on the right, beside the international routes
-  globe: { x: 3.9, y: -0.1, rx: GLOBE_RX, ry: 0, rz: 0, s: 0.82 },
-  // turned slightly away on the left so perspective doesn't push it off screen
-  ticket: { x: -3.45, y: 0, rx: 0.08, ry: -0.1, rz: -0.02, s: 1.05 },
+  // tipped back a little, so the raised provinces visibly hover over it
+  mapCenter: { x: 0, y: -0.1, rx: -0.3, ry: 0, rz: 0, s: 1.2 },
+  mapLeft: { x: -4.3, y: -0.1, rx: -0.34, ry: 0.2, rz: 0, s: 1.22 },
+  // a big globe across about three-quarters of the screen, on the right of
+  // the international routes; Vietnam on its left, the Pacific rim beyond
+  globe: { x: 3.4, y: -0.1, rx: GLOBE_RX, ry: 0, rz: 0, s: 1.34 },
+  // turned toward the copy on its right
+  ticket: { x: -3.2, y: 0, rx: 0.08, ry: 0.32, rz: 0, s: 1.05 },
   logo: DESKTOP_LOGO,
 };
 
@@ -81,31 +89,43 @@ const DESKTOP: Poses = {
 const COMPACT_QUERY = "(max-width: 1023px)";
 
 /**
+ * The map's full extent in model units, Hoàng Sa and Trường Sa included (and
+ * room for the raised provinces): x from the western border to the
+ * easternmost islands, y from the southern islands to the northern tip.
+ */
+const MAP_BOX = { x0: -1.75, x1: 4.6, y0: -4.15, y1: 3.6 };
+
+/**
  * Poses for phones and tablets, fitted to the screen's shape (width / height)
  * rather than fixed: centred, and as large as the screen allows. Model sizes
  * are in model units: the 747 spans 6.6 wingtip to wingtip and 7.3 long; the
- * mainland of Vietnam is 3.4 wide and 6.8 tall; the globe 8 across; the
- * boarding pass 7.2 × 3; the logo 9 × 3.8.
+ * map (with both archipelagos) MAP_BOX; the globe 8 across; the boarding
+ * pass 7.2 × 3; the logo 9 × 3.8.
  */
 function compactPoses(aspect: number): Poses {
   const H = HALF_H * 2; // visible height at the models' depth
   const W = H * aspect; // visible width
-  const portrait = aspect < 0.8;
   const logoS = Math.min((0.9 * W) / 9, 0.9);
+  // the whole map, archipelagos included, centred
+  const mapS = Math.min((0.84 * H) / (MAP_BOX.y1 - MAP_BOX.y0), (0.94 * W) / (MAP_BOX.x1 - MAP_BOX.x0));
+  const map: Pose = {
+    ...DESKTOP.mapCenter,
+    x: (-(MAP_BOX.x0 + MAP_BOX.x1) / 2) * mapS,
+    y: (-(MAP_BOX.y0 + MAP_BOX.y1) / 2) * mapS,
+    s: mapS,
+  };
   const logo: Pose = { ...DESKTOP_LOGO, y: HALF_H - 1 - 1.89 * logoS, s: logoS }; // just under the header
   return {
     loader: { ...logo, y: 0.3 },
     // seen a little from above so the wings read; wing tips just past the edges
     hero: { x: 0, y: 0.2, rx: 0.5, ry: -2.3, rz: 0.12, s: Math.min(W / 6.2, (0.8 * H) / 5) },
     noseIn: { ...DESKTOP.noseIn, y: 0, s: Math.min((0.96 * W) / 6.6, (0.8 * H) / 5) },
-    // the mainland fills the height (and a phone's width); the islands run off to the right
-    mapCenter: { ...DESKTOP.mapCenter, x: 0, y: 0, s: Math.min((0.88 * H) / 6.8, (1.15 * W) / 3.4) },
-    mapLeft: { ...DESKTOP.mapCenter, x: 0, y: 0, ry: 0.15, s: Math.min((0.88 * H) / 6.8, (1.15 * W) / 3.4) },
-    globe: { ...DESKTOP.globe, x: 0, y: 0, s: Math.min(W / 8, (0.92 * H) / 8) },
-    // on a portrait screen the boarding pass stands upright, so it can fill the height
-    ticket: portrait
-      ? { x: 0, y: 0, rx: 0.08, ry: 0.12, rz: -Math.PI / 2, s: Math.min((0.9 * H) / 7.2, (0.95 * W) / 3) }
-      : { x: 0, y: 0, rx: 0.08, ry: 0, rz: 0, s: Math.min((0.95 * W) / 7.2, (0.8 * H) / 3) },
+    mapCenter: map,
+    mapLeft: { ...map, ry: 0.12 },
+    // a touch wider than the screen
+    globe: { ...DESKTOP.globe, x: 0, y: 0, s: Math.min((1.06 * W) / 8, (0.95 * H) / 8) },
+    // the right way up, turned a little to the right
+    ticket: { x: 0, y: 0, rx: 0.08, ry: 0.26, rz: 0, s: Math.min((0.88 * W) / 7.2, (0.8 * H) / 3) },
     logo,
   };
 }
@@ -124,7 +144,7 @@ const SCRIPT = {
   gatherMap: [1.3, 2.14], // Vietnam gathers out of it, bottom to top
   mapToLeft: [2.25, 3.0],
   toGlobe: [3.22, 4.12], // map (left) morphs into the globe (right), right side first
-  globeSpin: [3.7, 4.6], // the globe turns South-East Asia forward
+  globeSpin: [3.3, 4.12], // the globe turns to rest (Vietnam on the left) by the time its copy is centred
   toTicket: [4.36, 5.14], // globe (right) morphs into the ticket (left), left side first
   toLogo: [5.3, 6.28], // ticket morphs into the company logo, drawn left to right
 } as const;
@@ -242,6 +262,7 @@ export default function Scene({ labels }: { labels?: readonly string[] }) {
       uHover: { value: 0 },
       uSkyBoost: { value: 1 }, // full-strength sky behind the loading screen
       uTheme: { value: startLight }, // 0 dark page, 1 light page (shared with the ambient field)
+      uMotion: { value: reduced ? 0 : 1 }, // flight-line pulses; off for reduced motion
       // tetrahedron orientation (shared)
       uTet: { value: TET.map(() => new THREE.Vector3()) },
       uFace: { value: new THREE.Vector4() },
@@ -251,27 +272,36 @@ export default function Scene({ labels }: { labels?: readonly string[] }) {
     const makeMaterial = (u: typeof uniforms) =>
       new THREE.ShaderMaterial({ uniforms: u, vertexShader, fragmentShader, transparent: true, depthWrite: false });
 
-    /* ---- ambient deep sky — up at once: it's the loading screen's backdrop ---- */
+    /* ---- the background: a deep field and Virgo — up at once: it's the loading screen's backdrop ---- */
     const amb = buildAmbient(small ? 450 : 900);
-    const ambN = amb.colorRand.length / 4;
     const ambGeo = new THREE.BufferGeometry();
-    const ambPos = new THREE.BufferAttribute(amb.pos, 3);
-    ambGeo.setAttribute("position", ambPos);
-    for (let i = 0; i < 6; i++) ambGeo.setAttribute(`aP${i}`, ambPos);
-    for (const name of ["aActive", "aOrder", "aLogo"]) {
-      ambGeo.setAttribute(name, new THREE.BufferAttribute(new Float32Array(ambN * 4), 4));
-    }
-    ambGeo.setAttribute("aShapeSize", new THREE.BufferAttribute(new Float32Array(ambN * 4).fill(1), 4));
+    ambGeo.setAttribute("position", new THREE.BufferAttribute(amb.pos, 3));
     ambGeo.setAttribute("aColorRand", new THREE.BufferAttribute(amb.colorRand, 4));
+    ambGeo.setAttribute("aStar", new THREE.BufferAttribute(amb.star, 4));
     const ambUniforms = {
       ...uniforms,
       uAppear: { value: 1 },
-      uOpacity: { value: 0.55 + 0.2 * startLight }, // a little stronger on a light page
+      uOpacity: { value: 1 },
+      uFieldOpacity: { value: 0.55 + 0.2 * startLight }, // the deep field: a little stronger on a light page
       uSize: { value: small ? 9 : 10 },
-      uHover: { value: 0 }, // the background never reacts to the pointer
       uPixelRatio: { value: renderer.getPixelRatio() },
+      uVirgo: { value: new THREE.Vector4() },
+      uVirgoOffset: { value: new THREE.Vector2() },
     };
-    const ambMaterial = makeMaterial(ambUniforms);
+    /** Fits Virgo to the screen's shape: wide across a landscape screen, upright on a portrait one. */
+    const fitVirgo = () => {
+      const fit = virgoFit(window.innerWidth / window.innerHeight, HALF_H / CAMERA_Z);
+      ambUniforms.uVirgo.value.set(fit.k, fit.cos, fit.sin, 0);
+      ambUniforms.uVirgoOffset.value.set(fit.ox, fit.oy);
+    };
+    fitVirgo();
+    const ambMaterial = new THREE.ShaderMaterial({
+      uniforms: ambUniforms,
+      vertexShader: skyVertexShader,
+      fragmentShader,
+      transparent: true,
+      depthWrite: false,
+    });
     const ambient = new THREE.Points(ambGeo, ambMaterial);
     ambient.frustumCulled = false;
     scene.add(ambient);
@@ -288,6 +318,7 @@ export default function Scene({ labels }: { labels?: readonly string[] }) {
       geo.setAttribute("aOrder", new THREE.BufferAttribute(data.order, 4));
       geo.setAttribute("aLogo", new THREE.BufferAttribute(data.logo, 4));
       geo.setAttribute("aColorRand", new THREE.BufferAttribute(data.colorRand, 4));
+      geo.setAttribute("aNormal", new THREE.BufferAttribute(data.normal, 3));
       const material = makeMaterial(uniforms);
       const points = new THREE.Points(geo, material);
       points.frustumCulled = false;
@@ -343,11 +374,12 @@ export default function Scene({ labels }: { labels?: readonly string[] }) {
 
         move(plane, P.hero, P.noseIn, SCRIPT.turnToCenter);
         step(0, 1, SCRIPT.dissolve);
-        // as the plane bursts, fly on through it: the near stars stream past
+        // From the plane bursting to the map gathered, fly on through the sky:
+        // the near stars stream up to the screen and past it, steadily with the scroll.
         tl.fromTo(
           flight,
           { v: 0 },
-          { v: TRAVEL.spread, duration: SCRIPT.dissolve[1] - SCRIPT.dissolve[0], ease: "power1.inOut" },
+          { v: TRAVEL.spread, duration: SCRIPT.gatherMap[1] - SCRIPT.dissolve[0], ease: "none" },
           SCRIPT.dissolve[0],
         );
         step(1, 2, SCRIPT.gatherMap);
@@ -403,7 +435,7 @@ export default function Scene({ labels }: { labels?: readonly string[] }) {
         overwrite: true,
         onUpdate: () => {
           uniforms.uTheme.value = theme.v;
-          ambUniforms.uOpacity.value = 0.55 + 0.2 * theme.v;
+          ambUniforms.uFieldOpacity.value = 0.55 + 0.2 * theme.v;
           renderer.setClearColor(clear.lerpColors(BG.dark, BG.light, theme.v), 1);
         },
       });
@@ -458,6 +490,7 @@ export default function Scene({ labels }: { labels?: readonly string[] }) {
       renderer.setSize(window.innerWidth, window.innerHeight);
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
+      fitVirgo();
       uniforms.uHalfView.value.set(HALF_H * camera.aspect, HALF_H);
       uniforms.uPixelRatio.value = ambUniforms.uPixelRatio.value = renderer.getPixelRatio();
       renderer.getDrawingBufferSize(uniforms.uViewport.value);

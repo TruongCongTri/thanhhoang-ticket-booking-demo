@@ -1,142 +1,24 @@
-import Image from "next/image";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import Scene from "@/components/scene/Scene";
 import Choreography from "@/components/Choreography";
 import BookingDock from "@/components/BookingDock";
 import Loader from "@/components/Loader";
-import LocaleSwitch from "@/components/LocaleSwitch";
-import MyTripsLink from "@/components/MyTripsLink";
 import Toaster from "@/components/Toaster";
-import ThemeToggle from "@/components/ThemeToggle";
-import Disclaimer from "@/components/Disclaimer";
 import RouteList from "@/components/RouteList";
 import { AIRLINES, DOMESTIC_AIRPORTS, INTERNATIONAL_POPULAR, POPULAR_ROUTES } from "@/lib/flights";
-import { AUTHOR, BRAND, CONTACT } from "@/lib/brand";
+import { BRAND } from "@/lib/brand";
+import { pagePath } from "@/lib/pages";
+import Header from "@/components/site/Header";
+import Footer from "@/components/site/Footer";
+import Rail from "@/components/site/Rail";
+import Stage from "@/components/site/Stage";
 import ContactButtons from "@/components/ContactButtons";
-import { fill, hasLocale, intlLocale, type Dictionary, type Locale } from "@/lib/i18n";
+import { fill, hasLocale, intlLocale } from "@/lib/i18n";
 import { getDictionary } from "./dictionaries";
 
 /** The story's sections, top to bottom (the rail on the right links to each). */
 const STAGES = ["top", "search", "airlines", "routes", "international", "ticket", "thanh-hoang"] as const;
-
-/** The logo file is already loaded by the loading screen, so every copy loads eagerly. */
-function Logo({ className }: { className: string }) {
-  return (
-    <Image
-      src={BRAND.logo.src}
-      width={BRAND.logo.width}
-      height={BRAND.logo.height}
-      alt={BRAND.name}
-      loading="eager"
-      className={`w-auto ${className}`}
-    />
-  );
-}
-
-function Nav({ t, locale }: { t: Dictionary["nav"]; locale: Locale }) {
-  return (
-    <header data-nav data-hide-while-loading className="fixed inset-x-0 top-0 z-40">
-      <div className="mx-auto flex max-w-[1280px] items-center justify-between px-6 py-5 md:px-10">
-        <a href="#top" aria-label={fill(t.home, { brand: BRAND.name })}>
-          <Logo className="h-11 md:h-12" />
-        </a>
-        <nav className="hidden items-center gap-9 lg:flex" aria-label={t.primary}>
-          {(["airlines", "routes", "international", "ticket"] as const).map((id) => (
-            <a key={id} href={`#${id}`} className="link-wave t-nav text-ash">
-              {t.links[id]}
-            </a>
-          ))}
-        </nav>
-        <div className="flex items-center gap-6">
-          <LocaleSwitch locale={locale} label={t.language} />
-          <ThemeToggle toLight={t.toLight} toDark={t.toDark} />
-          <MyTripsLink label={t.myTrips} />
-        </div>
-      </div>
-    </header>
-  );
-}
-
-/** The progress rail: one dot per section; hover (or focus) shows its name, click jumps there. */
-function Rail({ t }: { t: Dictionary["rail"] }) {
-  return (
-    <nav
-      data-hide-while-loading
-      aria-label={t.label}
-      className="fixed right-6 top-1/2 z-30 hidden -translate-y-1/2 flex-col items-end gap-1 lg:flex"
-    >
-      <span data-counter aria-hidden className="t-caption mb-2 w-4 text-center text-ash">
-        01
-      </span>
-      {STAGES.map((id, i) => (
-        <a
-          key={id}
-          href={`#${id}`}
-          data-dot
-          data-active={i === 0 ? "" : undefined}
-          className="rail-link group flex items-center gap-3 py-1.5"
-        >
-          <span className="rail-label t-nav whitespace-nowrap">{t.stages[id]}</span>
-          <span className="flex w-4 justify-center">
-            <span className="dot" />
-          </span>
-        </a>
-      ))}
-    </nav>
-  );
-}
-
-/**
- * One chapter of the story: 1.5 screens of scroll (SECTION_VH in Scene.tsx),
- * with its copy scrolling freely while the 3D changes in step with it.
- */
-function Stage({
-  id,
-  side,
-  narrow = false,
-  children,
-}: {
-  id: string;
-  /**
-   * "hero" = near the top of the first screen; "middle" = centred, for the
-   * open-sky chapters; "left" / "right" = beside the model; "end" = at the
-   * bottom, under the logo.
-   */
-  side: "hero" | "left" | "right" | "middle" | "end";
-  /** A slimmer column, when the model beside it reaches toward the centre. */
-  narrow?: boolean;
-  children: React.ReactNode;
-}) {
-  const column =
-    side === "right"
-      ? narrow
-        ? "lg:ml-auto lg:w-[42%] lg:pl-8"
-        : "lg:ml-auto lg:w-1/2 lg:pl-12"
-      : side === "left" || side === "hero"
-        ? narrow
-          ? "lg:w-[42%] lg:pr-8"
-          : "lg:w-1/2 lg:pr-8"
-        : side === "end"
-          ? ""
-          : "mx-auto max-w-[820px] text-center";
-  // Scroll margins decide where a #link to the section lands: centred copy
-  // lands mid-screen, the footer lands with the page's end.
-  const align = {
-    hero: "items-start pt-[46svh] md:pt-[18svh]",
-    left: "items-center -scroll-mt-[25svh]",
-    right: "items-center -scroll-mt-[25svh]",
-    middle: "items-center -scroll-mt-[25svh]",
-    // clear of the booking dock (and its tabs) fixed at the bottom of the screen
-    end: "items-end pb-44 md:pb-56 -scroll-mt-[50svh]",
-  }[side];
-  return (
-    <section id={id} data-stage className={`relative flex h-[150svh] ${align}`}>
-      <div className="mx-auto w-full max-w-[1280px] px-6 md:px-10">
-        <div className={column}>{children}</div>
-      </div>
-    </section>
-  );
-}
 
 export default async function Home({ params }: PageProps<"/[locale]">) {
   const { locale } = await params;
@@ -149,8 +31,14 @@ export default async function Home({ params }: PageProps<"/[locale]">) {
       <Scene labels={t.archipelagos} />
       <Choreography />
       <Loader label={fill(t.loading, brand)} />
-      <Nav t={t.nav} locale={locale} />
-      <Rail t={t.rail} />
+      <Header
+        t={t.nav}
+        pages={t.pages}
+        locale={locale}
+        home="#top"
+        links={(["airlines", "routes", "international", "ticket"] as const).map((id) => ({ href: `#${id}`, label: t.nav.links[id] }))}
+      />
+      <Rail label={t.rail.label} stages={STAGES.map((id) => ({ id, label: t.rail.stages[id] }))} />
 
       <main id="story" data-hide-while-loading className="relative z-10">
         {/* 0 · Plane */}
@@ -281,59 +169,18 @@ export default async function Home({ params }: PageProps<"/[locale]">) {
 
         {/* 6 · The company logo, drawn in particles above the footer */}
         <Stage id="thanh-hoang" side="end">
-          <footer className="grid gap-8">
-            <div className="grid gap-8 md:grid-cols-[1fr_1.3fr_auto] md:items-end md:gap-12">
-              <div>
-                {/* on phones the particle logo right above says it already */}
-                <Logo className="hidden h-14 md:block" />
-                <p className="t-body max-w-[360px] text-ash md:mt-4">{t.footer.tagline}</p>
-              </div>
-              {/* The ticket office */}
-              <address className="grid gap-2 text-[15px] not-italic leading-relaxed text-mist">
-                <span className="t-label">{t.footer.contactTitle}</span>
-                <span>
-                  <span className="text-ash">{t.footer.phone}: </span>
-                  {CONTACT.phones.map((p, i) => (
-                    <span key={p.tel}>
-                      {i > 0 && <span className="text-ash"> – </span>}
-                      <a href={`tel:${p.tel}`} className="link-wave whitespace-nowrap text-white">
-                        {p.text}
-                      </a>
-                    </span>
-                  ))}
-                </span>
-                <span>
-                  <span className="text-ash">{t.footer.email}: </span>
-                  <a href={`mailto:${CONTACT.email}`} className="link-wave text-white">
-                    {CONTACT.email}
-                  </a>
-                </span>
-                <span>
-                  <span className="text-ash">{t.footer.address}: </span>
-                  {t.footer.addressText}
-                </span>
-              </address>
-              <nav className="flex flex-wrap gap-x-8 gap-y-3 md:flex-col md:items-end">
-                {t.footer.links.map((l) => (
-                  <a key={l} href="#" className="link-wave t-nav text-ash">
-                    {l}
-                  </a>
-                ))}
-              </nav>
-            </div>
-            <div className="flex flex-wrap items-center justify-between gap-x-8 gap-y-3 border-t border-white/10 pt-5">
-              <p className="t-caption text-ash">{fill(t.footer.rights, brand)}</p>
-              <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
-                <Disclaimer label={t.footer.disclaimer} t={t.disclaimer} />
-                <span className="t-caption text-ash">
-                  {t.footer.designedBy} –{" "}
-                  <a href={AUTHOR.url} target="_blank" rel="noopener noreferrer" className="link-wave text-white">
-                    {AUTHOR.name}
-                  </a>
-                </span>
-              </div>
-            </div>
-          </footer>
+          <Footer t={t.footer} disclaimer={t.disclaimer}>
+            {/* On to the company pages: the start of the scroll tour */}
+            <p className="mt-6">
+              <span className="t-label block">{t.homeAbout.label}</span>
+              <Link
+                href={pagePath(locale, "about")}
+                className="link-wave t-nav mt-3 inline-flex items-center gap-3 text-white"
+              >
+                {t.homeAbout.cta} <span aria-hidden>→</span>
+              </Link>
+            </p>
+          </Footer>
         </Stage>
       </main>
 

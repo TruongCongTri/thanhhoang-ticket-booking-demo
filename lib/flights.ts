@@ -6,6 +6,8 @@ export type Airport = {
   lon: number;
   /** Outside Vietnam — a destination on the international routes. */
   intl?: boolean;
+  /** In Vietnam, and an international airport too (domestic flights as well). */
+  gateway?: boolean;
 };
 
 export type Airline = {
@@ -38,22 +40,22 @@ export const AIRLINES: Airline[] = [
 ];
 
 export const AIRPORTS: Airport[] = [
-  { code: "HAN", city: "Hà Nội", name: "Nội Bài", lat: 21.221, lon: 105.807 },
-  { code: "SGN", city: "TP. Hồ Chí Minh", name: "Tân Sơn Nhất", lat: 10.819, lon: 106.652 },
-  { code: "DAD", city: "Đà Nẵng", name: "Đà Nẵng", lat: 16.044, lon: 108.199 },
-  { code: "CXR", city: "Nha Trang", name: "Cam Ranh", lat: 11.998, lon: 109.219 },
-  { code: "PQC", city: "Phú Quốc", name: "Phú Quốc", lat: 10.227, lon: 103.967 },
-  { code: "HPH", city: "Hải Phòng", name: "Cát Bi", lat: 20.819, lon: 106.725 },
-  { code: "HUI", city: "Huế", name: "Phú Bài", lat: 16.401, lon: 107.703 },
-  { code: "DLI", city: "Đà Lạt", name: "Liên Khương", lat: 11.75, lon: 108.367 },
-  { code: "VCA", city: "Cần Thơ", name: "Cần Thơ", lat: 10.085, lon: 105.712 },
-  { code: "VII", city: "Vinh", name: "Vinh", lat: 18.737, lon: 105.671 },
+  { code: "HAN", city: "Hà Nội", name: "Nội Bài", lat: 21.221, lon: 105.807, gateway: true },
+  { code: "SGN", city: "TP. Hồ Chí Minh", name: "Tân Sơn Nhất", lat: 10.819, lon: 106.652, gateway: true },
+  { code: "DAD", city: "Đà Nẵng", name: "Đà Nẵng", lat: 16.044, lon: 108.199, gateway: true },
+  { code: "CXR", city: "Nha Trang", name: "Cam Ranh", lat: 11.998, lon: 109.219, gateway: true },
+  { code: "PQC", city: "Phú Quốc", name: "Phú Quốc", lat: 10.227, lon: 103.967, gateway: true },
+  { code: "HPH", city: "Hải Phòng", name: "Cát Bi", lat: 20.819, lon: 106.725, gateway: true },
+  { code: "HUI", city: "Huế", name: "Phú Bài", lat: 16.401, lon: 107.703, gateway: true },
+  { code: "DLI", city: "Đà Lạt", name: "Liên Khương", lat: 11.75, lon: 108.367, gateway: true },
+  { code: "VCA", city: "Cần Thơ", name: "Cần Thơ", lat: 10.085, lon: 105.712, gateway: true },
+  { code: "VII", city: "Vinh", name: "Vinh", lat: 18.737, lon: 105.671, gateway: true },
   { code: "UIH", city: "Quy Nhơn", name: "Phù Cát", lat: 13.955, lon: 109.042 },
   { code: "BMV", city: "Buôn Ma Thuột", name: "Buôn Ma Thuột", lat: 12.668, lon: 108.12 },
-  { code: "VDO", city: "Quảng Ninh", name: "Vân Đồn", lat: 21.118, lon: 107.414 },
-  { code: "THD", city: "Thanh Hóa", name: "Thọ Xuân", lat: 19.902, lon: 105.468 },
+  { code: "VDO", city: "Quảng Ninh", name: "Vân Đồn", lat: 21.118, lon: 107.414, gateway: true },
+  { code: "THD", city: "Thanh Hóa", name: "Thọ Xuân", lat: 19.902, lon: 105.468, gateway: true },
   { code: "VDH", city: "Đồng Hới", name: "Đồng Hới", lat: 17.515, lon: 106.591 },
-  { code: "VCL", city: "Quảng Nam", name: "Chu Lai", lat: 15.403, lon: 108.706 },
+  { code: "VCL", city: "Quảng Nam", name: "Chu Lai", lat: 15.403, lon: 108.706, gateway: true },
   { code: "PXU", city: "Pleiku", name: "Pleiku", lat: 14.004, lon: 108.017 },
   { code: "TBB", city: "Tuy Hòa", name: "Tuy Hòa", lat: 13.05, lon: 109.334 },
   { code: "VCS", city: "Côn Đảo", name: "Côn Đảo", lat: 8.732, lon: 106.633 },

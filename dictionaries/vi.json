@@ -354,5 +354,273 @@
     ],
     "contact": "Liên hệ tôi",
     "close": "Đóng"
+  },
+  "pages": {
+    "menu": "Giới thiệu",
+    "menuLabel": "Các trang giới thiệu Thanh Hoang",
+    "soon": "Sắp ra mắt",
+    "flights": "Vé máy bay",
+    "names": {
+      "about": "Giới thiệu",
+      "organization": "Tổ chức",
+      "services": "Dịch vụ & Vận hành",
+      "achievements": "Thành tựu & Đối tác"
+    },
+    "next": "Tiếp theo",
+    "prev": "Trước đó",
+    "scrollNext": "Cuộn tiếp để sang {page}",
+    "scrollPrev": "Cuộn lên để về {page}"
+  },
+  "homeAbout": {
+    "label": "Về Thanh Hoang",
+    "title": "Hơn mười năm đồng hành cùng từng chuyến đi.",
+    "cta": "Câu chuyện của chúng tôi"
+  },
+  "about": {
+    "meta": {
+      "title": "Giới thiệu — {brand}",
+      "description": "Lịch sử hình thành, tầm nhìn, sứ mệnh và giá trị cốt lõi của Du lịch Thanh Hoàng, đồng hành cùng khách hàng từ năm 2013."
+    },
+    "rail": {
+      "intro": "Lời cảm ơn",
+      "y2013": "2013 · Khởi nguồn",
+      "y2016": "2016 · Bứt phá",
+      "y2019": "2019 · Số hóa",
+      "y2022": "2022 · Tăng tốc",
+      "vision": "Tầm nhìn",
+      "mission": "Sứ mệnh",
+      "values": "Giá trị cốt lõi",
+      "end": "Thanh Hoang"
+    },
+    "hero": {
+      "label": "Du lịch Thanh Hoàng · Từ 2013",
+      "title": "Đồng hành từng chuyến đi.",
+      "body": "Cảm ơn Quý vị đã tin tưởng và đồng hành cùng chúng tôi từ năm 2013 đến nay. Với tinh thần bảo trợ, phúc lành và gắn kết, Thanh Hoàng cam kết mang đến dịch vụ uy tín, chuyên nghiệp và tận tâm.",
+      "company": "Công ty TNHH Thương Mại Và Phát Triển Du Lịch Thanh Hoàng",
+      "taxLabel": "Mã số thuế",
+      "tax": "0312171360"
+    },
+    "history": {
+      "label": "Lịch sử hình thành",
+      "quote": "Mọi hành trình bền vững đều bắt đầu từ một bước chân vững chắc.",
+      "milestones": [
+        {
+          "years": "2013 – 2015",
+          "title": "Khởi nguồn",
+          "body": "Thành lập năm 2013 với sứ mệnh mang đến trải nghiệm đặt vé máy bay thuận tiện, minh bạch cho người Việt. Từ một văn phòng nhỏ tại TP.HCM, Thanh Hoàng nhanh chóng trở thành đại lý chính thức của các hãng hàng không nội địa lớn."
+        },
+        {
+          "years": "2016 – 2018",
+          "title": "Bứt phá công nghệ",
+          "body": "Đầu tư mạnh vào công nghệ: hệ thống đặt vé trực tuyến thông minh cập nhật giá theo thời gian thực. Giai đoạn vượt bậc về thị phần, với sự hợp tác mở rộng cùng nhiều hãng bay quốc tế uy tín."
+        },
+        {
+          "years": "2019 – 2021",
+          "title": "Số hóa toàn diện",
+          "body": "Đón đầu du lịch 4.0, Thanh Hoàng triển khai nền tảng AGS99 dành riêng cho đại lý vé máy bay, cùng các dịch vụ hỗ trợ visa, đặt phòng, bảo hiểm du lịch và chăm sóc khách hàng 24/7."
+        },
+        {
+          "years": "2022 – nay",
+          "title": "Tăng tốc bền vững",
+          "body": "Không chỉ là nhà cung cấp vé máy bay, Thanh Hoàng trở thành cầu nối du lịch toàn diện, kết nối hàng triệu hành khách. Hệ thống THcent và chính sách ưu đãi đại lý mở rộng mạng lưới kinh doanh khắp cả nước."
+        }
+      ]
+    },
+    "vision": {
+      "label": "Tầm nhìn",
+      "title": "Đơn vị vé máy bay hàng đầu Việt Nam.",
+      "body": "Thanh Hoàng không ngừng đổi mới và ứng dụng công nghệ để mang lại trải nghiệm đặt vé nhanh chóng, an toàn và tối ưu chi phí. Chúng tôi không chỉ bán vé, mà còn tạo ra một hành trình khởi đầu suôn sẻ, đáng tin cậy cho mọi chuyến đi — dù là công tác, thăm thân hay du lịch."
+    },
+    "mission": {
+      "label": "Sứ mệnh",
+      "title": "Kết nối hàng triệu khách hàng với bầu trời.",
+      "body": "Cùng các hãng hàng không trong và ngoài nước, chúng tôi cung cấp giải pháp đặt vé thuận tiện, chính xác và phù hợp nhất — để mỗi khách hàng dễ dàng tiếp cận những chuyến bay chất lượng, với mức giá cạnh tranh, minh bạch và dịch vụ hỗ trợ tận tâm."
+    },
+    "values": {
+      "label": "Giá trị cốt lõi",
+      "title": "Năm điều chúng tôi giữ vững.",
+      "items": [
+        {
+          "name": "Uy tín",
+          "body": "Cam kết đúng giờ, đúng thông tin, đúng trách nhiệm."
+        },
+        {
+          "name": "Chuyên nghiệp",
+          "body": "Quy trình rõ ràng, đội ngũ tận tâm."
+        },
+        {
+          "name": "Tiện lợi",
+          "body": "Đặt vé nhanh chóng, mọi lúc, mọi nơi."
+        },
+        {
+          "name": "Minh bạch",
+          "body": "Giá cả rõ ràng, không phí ẩn."
+        },
+        {
+          "name": "Hỗ trợ tận tâm",
+          "body": "Luôn đồng hành và sẵn sàng giúp đỡ."
+        }
+      ]
+    },
+    "finale": {
+      "title": "Xin tri ân và chúc Quý vị sức khỏe, thịnh vượng."
+    }
+  },
+  "organization": {
+    "meta": {
+      "title": "Tổ chức — {brand}",
+      "description": "Cơ cấu nhân sự và sơ đồ tổ chức của Du lịch Thanh Hoàng: ban giám đốc, các phòng ban và đội ngũ cộng tác viên."
+    },
+    "rail": {
+      "structure": "Cơ cấu tổ chức",
+      "people": "Năng lực nhân sự",
+      "chart": "Sơ đồ tổ chức",
+      "end": "Thanh Hoang"
+    },
+    "hero": {
+      "label": "Cơ cấu tổ chức",
+      "title": "Một đội ngũ, một nhịp vận hành.",
+      "body": "Mỗi phòng ban là một cụm năng lực riêng, cùng xoay quanh một trọng tâm: hành khách."
+    },
+    "people": {
+      "label": "Năng lực nhân sự",
+      "title": "Lấy khách hàng làm trung tâm.",
+      "points": [
+        {
+          "title": "Tư duy dịch vụ lấy khách hàng làm trung tâm",
+          "body": "Đội ngũ luôn đặt lợi ích và trải nghiệm của khách hàng lên hàng đầu, linh hoạt xử lý tình huống, tận tâm hỗ trợ 24/7 và không ngừng cải tiến trong từng giao dịch."
+        },
+        {
+          "title": "Thành thạo công nghệ, vận hành linh hoạt",
+          "body": "Nhân sự thành thạo các nền tảng đặt vé hiện đại, phối hợp nhịp nhàng giữa các bộ phận và vận hành hiệu quả, kể cả trong những giai đoạn cao điểm."
+        }
+      ],
+      "legendTitle": "Cơ cấu nhân sự",
+      "legend": [
+        {
+          "label": "Ban lãnh đạo",
+          "share": "3.8%"
+        },
+        {
+          "label": "Nhân viên công ty",
+          "share": "38.5%"
+        },
+        {
+          "label": "Cộng tác viên",
+          "share": "57.7%"
+        }
+      ]
+    },
+    "chart": {
+      "label": "Sơ đồ tổ chức",
+      "hint": "Chạm vào một vị trí để xem vai trò",
+      "nodes": {
+        "gd": {
+          "title": "Giám đốc",
+          "dept": "Ban giám đốc",
+          "role": "Định hướng chiến lược và chịu trách nhiệm chung về hoạt động của công ty."
+        },
+        "pgd": {
+          "title": "Phó giám đốc",
+          "dept": "Ban giám đốc",
+          "role": "Điều phối các phòng ban và theo dõi vận hành hằng ngày."
+        },
+        "ktt": {
+          "title": "Kế toán trưởng",
+          "dept": "Phòng Kế toán",
+          "role": "Quản lý tài chính, đối soát với hãng bay và đại lý."
+        },
+        "kt1": {
+          "title": "Kế toán tổng hợp",
+          "dept": "Phòng Kế toán",
+          "role": "Tổng hợp sổ sách và báo cáo tài chính."
+        },
+        "kt2": {
+          "title": "Kế toán công nợ",
+          "dept": "Phòng Kế toán",
+          "role": "Theo dõi công nợ khách hàng và đại lý."
+        },
+        "kt3": {
+          "title": "Kế toán ngân hàng",
+          "dept": "Phòng Kế toán",
+          "role": "Đối soát giao dịch thanh toán qua ngân hàng."
+        },
+        "kt4": {
+          "title": "Kế toán hóa đơn",
+          "dept": "Phòng Kế toán",
+          "role": "Xuất và quản lý hóa đơn cho khách hàng."
+        },
+        "it": {
+          "title": "Trưởng phòng IT",
+          "dept": "Phòng IT",
+          "role": "Vận hành hệ thống đặt vé và kết nối với các hãng bay."
+        },
+        "it1": {
+          "title": "Team IT",
+          "dept": "Phòng IT",
+          "role": "Phát triển, bảo trì và bảo mật hệ thống."
+        },
+        "kd": {
+          "title": "Trưởng phòng Kinh doanh",
+          "dept": "Phòng Kinh doanh",
+          "role": "Phát triển khách hàng doanh nghiệp, đại lý và chương trình ưu đãi."
+        },
+        "kd1": {
+          "title": "Phó phòng Kinh doanh",
+          "dept": "Phòng Kinh doanh",
+          "role": "Điều phối Flight team và Ticket team."
+        },
+        "kd2": {
+          "title": "Flight team",
+          "dept": "Phòng Kinh doanh",
+          "role": "Tư vấn hành trình và tìm chuyến bay phù hợp."
+        },
+        "kd3": {
+          "title": "Ticket team",
+          "dept": "Phòng Kinh doanh",
+          "role": "Đặt chỗ, xuất vé và thay đổi hành trình."
+        },
+        "ns": {
+          "title": "Trưởng phòng Nhân sự",
+          "dept": "Phòng Nhân sự",
+          "role": "Tuyển dụng, đào tạo và phát triển đội ngũ."
+        },
+        "ns1": {
+          "title": "Nhân viên hành chính nhân sự",
+          "dept": "Phòng Nhân sự",
+          "role": "Hành chính, hồ sơ và chế độ cho nhân viên."
+        },
+        "bk": {
+          "title": "Booker trưởng",
+          "dept": "Bộ phận Booker",
+          "role": "Điều phối đặt chỗ cho đại lý và khách đoàn."
+        },
+        "bk1": {
+          "title": "Team ticketing",
+          "dept": "Bộ phận Booker",
+          "role": "Xuất vé và xử lý yêu cầu sau bán."
+        }
+      },
+      "levels": {
+        "board": {
+          "label": "Sơ đồ tổ chức · Ban giám đốc",
+          "title": "Bộ máy vững vàng.",
+          "body": "Tổ chức bộ máy vững vàng là nền tảng cho vận hành hiệu quả và phát triển bền lâu. Đứng đầu là Giám đốc, cùng Phó giám đốc điều phối mọi phòng ban."
+        },
+        "heads": {
+          "label": "Sơ đồ tổ chức · Phòng ban",
+          "title": "Năm phòng ban, năm người dẫn dắt.",
+          "body": "Kế toán, IT, Kinh doanh, Nhân sự và Booker — mỗi phòng do một trưởng bộ phận phụ trách, báo cáo trực tiếp lên Phó giám đốc."
+        },
+        "teams": {
+          "label": "Sơ đồ tổ chức · Đội nhóm",
+          "title": "Mỗi vị trí, một mắt xích.",
+          "body": "Dưới mỗi trưởng bộ phận là các vị trí chuyên trách, từ kế toán công nợ đến Flight team và Ticket team. Di chuột lên từng vị trí để xem vai trò."
+        }
+      }
+    },
+    "finale": {
+      "title": "Sự kết hợp giúp Thanh Hoàng không ngừng phát triển."
+    }
   }
 }

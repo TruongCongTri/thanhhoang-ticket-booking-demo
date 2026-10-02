@@ -354,5 +354,273 @@
     ],
     "contact": "Contact me",
     "close": "Close"
+  },
+  "pages": {
+    "menu": "About",
+    "menuLabel": "About Thanh Hoang",
+    "soon": "Coming soon",
+    "flights": "Flights",
+    "names": {
+      "about": "About us",
+      "organization": "Organization",
+      "services": "Services & operations",
+      "achievements": "Achievements & partners"
+    },
+    "next": "Up next",
+    "prev": "Previously",
+    "scrollNext": "Keep scrolling for {page}",
+    "scrollPrev": "Scroll up for {page}"
+  },
+  "homeAbout": {
+    "label": "About Thanh Hoang",
+    "title": "Over ten years beside every journey.",
+    "cta": "Our story"
+  },
+  "about": {
+    "meta": {
+      "title": "About — {brand}",
+      "description": "The history, vision, mission and core values of Thanh Hoang Travel, travelling alongside its customers since 2013."
+    },
+    "rail": {
+      "intro": "Thank you",
+      "y2013": "2013 · Beginnings",
+      "y2016": "2016 · Breakthrough",
+      "y2019": "2019 · Digital",
+      "y2022": "2022 · Momentum",
+      "vision": "Vision",
+      "mission": "Mission",
+      "values": "Core values",
+      "end": "Thanh Hoang"
+    },
+    "hero": {
+      "label": "Thanh Hoang Travel · Since 2013",
+      "title": "Beside you on every journey.",
+      "body": "Thank you for trusting and travelling with us since 2013. In a spirit of care, good fortune and togetherness, Thanh Hoang is committed to service that is reliable, professional and wholehearted.",
+      "company": "Thanh Hoang Travel Trading and Development Co., Ltd.",
+      "taxLabel": "Tax code",
+      "tax": "0312171360"
+    },
+    "history": {
+      "label": "Our history",
+      "quote": "Every lasting journey begins with a steady first step.",
+      "milestones": [
+        {
+          "years": "2013 – 2015",
+          "title": "Beginnings",
+          "body": "Founded in 2013 to make booking a flight easy and transparent for Vietnamese travellers. From a small office in Ho Chi Minh City, Thanh Hoang quickly became an official agent of the country's major domestic airlines."
+        },
+        {
+          "years": "2016 – 2018",
+          "title": "A technology breakthrough",
+          "body": "Heavy investment in technology brought a smart online booking system with fares updated in real time. Market share leapt, and partnerships grew with many respected international airlines."
+        },
+        {
+          "years": "2019 – 2021",
+          "title": "Fully digital",
+          "body": "Ahead of travel 4.0, Thanh Hoang launched AGS99, a platform built for flight-ticket agents, along with visa support, hotel booking, travel insurance and 24/7 customer care."
+        },
+        {
+          "years": "2022 – today",
+          "title": "Sustained momentum",
+          "body": "More than a ticket seller, Thanh Hoang became a complete travel bridge connecting millions of passengers. The THcent system and agent incentives widened its network across the country."
+        }
+      ]
+    },
+    "vision": {
+      "label": "Vision",
+      "title": "Vietnam's leading flight-ticket provider.",
+      "body": "Thanh Hoang keeps innovating with technology to make booking fast, safe and cost-effective. We don't just sell tickets: we make the start of every trip smooth and dependable — for business, family visits or holidays alike."
+    },
+    "mission": {
+      "label": "Mission",
+      "title": "Connecting millions of travellers with the sky.",
+      "body": "With airlines at home and abroad, we offer the most convenient, accurate and fitting way to book — so every customer can reach quality flights at competitive, transparent fares, with wholehearted support."
+    },
+    "values": {
+      "label": "Core values",
+      "title": "Five things we hold to.",
+      "items": [
+        {
+          "name": "Reliability",
+          "body": "On time, accurate, accountable."
+        },
+        {
+          "name": "Professionalism",
+          "body": "Clear processes, a dedicated team."
+        },
+        {
+          "name": "Convenience",
+          "body": "Book quickly, anytime, anywhere."
+        },
+        {
+          "name": "Transparency",
+          "body": "Clear prices, no hidden fees."
+        },
+        {
+          "name": "Wholehearted support",
+          "body": "Always beside you, ready to help."
+        }
+      ]
+    },
+    "finale": {
+      "title": "With gratitude, we wish you health and prosperity."
+    }
+  },
+  "organization": {
+    "meta": {
+      "title": "Organization — {brand}",
+      "description": "How Thanh Hoang Travel is organised: its leadership, departments and network of collaborators."
+    },
+    "rail": {
+      "structure": "Structure",
+      "people": "Our people",
+      "chart": "Organization chart",
+      "end": "Thanh Hoang"
+    },
+    "hero": {
+      "label": "Our structure",
+      "title": "One team, one rhythm.",
+      "body": "Each department is its own cluster of skills, all turning around one centre: the traveller."
+    },
+    "people": {
+      "label": "Our people",
+      "title": "The customer at the centre.",
+      "points": [
+        {
+          "title": "Service built around the customer",
+          "body": "Our team puts customers' interests and experience first, handles the unexpected with flexibility, supports them 24/7 and keeps improving every transaction."
+        },
+        {
+          "title": "Fluent in technology, flexible in operation",
+          "body": "Our people master modern booking platforms, work smoothly across departments and run efficiently even at the busiest times."
+        }
+      ],
+      "legendTitle": "Our people",
+      "legend": [
+        {
+          "label": "Leadership",
+          "share": "3.8%"
+        },
+        {
+          "label": "Company staff",
+          "share": "38.5%"
+        },
+        {
+          "label": "Collaborators",
+          "share": "57.7%"
+        }
+      ]
+    },
+    "chart": {
+      "label": "Organization chart",
+      "hint": "Tap a position to see its role",
+      "nodes": {
+        "gd": {
+          "title": "Director",
+          "dept": "Board of directors",
+          "role": "Sets the strategy and is responsible for the company as a whole."
+        },
+        "pgd": {
+          "title": "Deputy director",
+          "dept": "Board of directors",
+          "role": "Coordinates the departments and oversees day-to-day operations."
+        },
+        "ktt": {
+          "title": "Chief accountant",
+          "dept": "Accounting",
+          "role": "Manages finances and reconciles with airlines and agents."
+        },
+        "kt1": {
+          "title": "General accountant",
+          "dept": "Accounting",
+          "role": "Keeps the books and prepares financial reports."
+        },
+        "kt2": {
+          "title": "Receivables accountant",
+          "dept": "Accounting",
+          "role": "Tracks what customers and agents owe."
+        },
+        "kt3": {
+          "title": "Bank accountant",
+          "dept": "Accounting",
+          "role": "Reconciles payments made through the banks."
+        },
+        "kt4": {
+          "title": "Invoicing accountant",
+          "dept": "Accounting",
+          "role": "Issues and manages customer invoices."
+        },
+        "it": {
+          "title": "Head of IT",
+          "dept": "IT",
+          "role": "Runs the booking system and its links to the airlines."
+        },
+        "it1": {
+          "title": "IT team",
+          "dept": "IT",
+          "role": "Builds, maintains and secures the systems."
+        },
+        "kd": {
+          "title": "Head of sales",
+          "dept": "Sales",
+          "role": "Grows corporate clients, agents and promotions."
+        },
+        "kd1": {
+          "title": "Deputy head of sales",
+          "dept": "Sales",
+          "role": "Coordinates the flight and ticket teams."
+        },
+        "kd2": {
+          "title": "Flight team",
+          "dept": "Sales",
+          "role": "Advises on itineraries and finds the right flights."
+        },
+        "kd3": {
+          "title": "Ticket team",
+          "dept": "Sales",
+          "role": "Books seats, issues tickets and changes itineraries."
+        },
+        "ns": {
+          "title": "Head of HR",
+          "dept": "Human resources",
+          "role": "Recruits, trains and develops the team."
+        },
+        "ns1": {
+          "title": "HR administrator",
+          "dept": "Human resources",
+          "role": "Administration, records and staff benefits."
+        },
+        "bk": {
+          "title": "Head booker",
+          "dept": "Booking",
+          "role": "Coordinates bookings for agents and groups."
+        },
+        "bk1": {
+          "title": "Ticketing team",
+          "dept": "Booking",
+          "role": "Issues tickets and handles after-sales requests."
+        }
+      },
+      "levels": {
+        "board": {
+          "label": "Organization chart · Board",
+          "title": "A steady structure.",
+          "body": "A steady structure is the foundation for running well and growing for the long term. At the top, the Director, with a Deputy Director coordinating every department."
+        },
+        "heads": {
+          "label": "Organization chart · Departments",
+          "title": "Five departments, five leads.",
+          "body": "Accounting, IT, Sales, HR and Booking — each led by its own head, reporting directly to the Deputy Director."
+        },
+        "teams": {
+          "label": "Organization chart · Teams",
+          "title": "Every role, one link in the chain.",
+          "body": "Under each head are the specialist roles, from receivables to the flight and ticket teams. Hover over a position to see what it does."
+        }
+      }
+    },
+    "finale": {
+      "title": "Together, they keep Thanh Hoang growing."
+    }
   }
 }

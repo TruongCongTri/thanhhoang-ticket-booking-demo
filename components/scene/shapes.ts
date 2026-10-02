@@ -10,22 +10,62 @@ import {
   TRUONG_SA,
   type IslandSize,
 } from "./routes";
+import {
+  CLUSTER_CENTER,
+  NEIGHBOURS,
+  SPECTRAL,
+  VIRGO,
+  VIRGO_CLUSTER,
+  VIRGO_LINES,
+  depthFor,
+  project,
+  virgoOn,
+  type CatalogStar,
+} from "./virgo";
 
-type Rand = () => number;
+export type Rand = () => number;
 type Vec3 = [number, number, number];
 type Pt = [number, number];
 /**
- * A particle's resting place in a model, its size relative to the model's
- * usual particle, and whether it's drawn in the accent colour (flight lines).
+ * Colour classes a model can paint a particle in (else it keeps its palette
+ * colour) — see colorOf in shaders.ts. aShapeSize carries class × 10 + size.
  */
-type Item = { p: Vec3; s: number; a?: number };
-/** A model: N×3 positions, N size factors, N accent flags. */
-type Shape = { pos: Float32Array; size: Float32Array; accent: Float32Array };
+export const TINT = {
+  palette: 0,
+  accent: 1, // the logo's yellow: flight lines and airports on the globe
+  domestic: 2, // provinces with a domestic airport
+  international: 3, // provinces with an international airport
+  vietnam: 4, // Vietnam's border on the globe, in red
+  ink: 5, // routes and airports over the map: pale on a dark page, navy on a light one
+  muted: 6, // the province lines under the raised provinces
+  coast: 7, // Vietnam's coastline on the map: a fine, steady hairline
+  route: 8, // flight lines (map and globe): grey, with yellow pulses travelling them
+  border: 9, // country borders on the globe
+} as const;
+
+/**
+ * A particle's resting place in a model, its size relative to the model's
+ * usual particle, its colour class (TINT) and — on the plane — the surface
+ * normal there, which sizes it by how squarely the surface faces the viewer.
+ */
+type Item = { p: Vec3; s: number; t?: number; n?: Vec3 };
+/** A model: N×3 positions, N size factors, N colour classes, N×3 surface normals (or none). */
+export type Shape = { pos: Float32Array; size: Float32Array; tint: Float32Array; normal?: Float32Array };
 
 /** Shape of components/scene/geo-data.json (built by scripts/build-geo.mjs). */
 export type GeoData = {
-  vietnam: { q: number; outline: number[][]; borders: number[][] };
+  vietnam: {
+    q: number;
+    outline: number[][];
+    borders: number[][];
+    /** Provinces with airports: tier, airport codes, centroid and offset (degrees), scale, rings. */
+    units: { n: string; t: "intl" | "dom"; a: string[]; c: number[]; o: number[]; k: number; r: number[][] }[];
+  };
   land: { w: number; h: number; rle: string };
+  /** Land height per 1° cell (see scripts/build-geo.mjs for the encoding). */
+  elevation: { w: number; h: number; top: number; rows: string };
+  /** Land borders between countries, delta-encoded in 1/q degree (see scripts/build-geo.mjs). */
+  countries: { q: number; lines: number[][] };
 };
 
 const TAU = Math.PI * 2;
@@ -36,12 +76,16 @@ export const CAMERA_Z = 14;
 export const CAMERA_FOV = 35;
 
 export const GLOBE_RADIUS = 4;
-const GLOBE_LON0 = 106; // this meridian faces the camera
-/** Latitude facing the camera in the final pose — puts South-East Asia in the upper-middle of the disc. */
-export const GLOBE_FACING_LAT = -15;
+/**
+ * The meridian and latitude facing the camera in the final pose: the western
+ * Pacific, so Vietnam and South-East Asia sit on the left half of the disc,
+ * China above, Korea and Japan upper right, and Australia lower right.
+ */
+const GLOBE_LON0 = 140;
+export const GLOBE_FACING_LAT = 12;
 
 /** Vivid, never grey (DESIGN.md). sRGB 0..1, written straight out by the shader. */
-const PALETTE: [string, number][] = [
+export const PALETTE: [string, number][] = [
   // the logo's colours: mostly its blue (lifted to glow on black), a spark of its yellow and orange
   ["#1f7fd8", 0.3],
   ["#4fa8ff", 0.22],
@@ -52,7 +96,7 @@ const PALETTE: [string, number][] = [
 ];
 
 /** Particle size factors for the finer details. */
-const SIZE = { route: 0.34, globeRoute: 0.5, airport: 0.6 };
+const SIZE = { airport: 0.6 }; // flight-line dots are sized in the shader
 /** Islands by area: how many particles, how far they spread, how big they are. */
 const ISLAND: Record<IslandSize, { n: number; r: number; s: number }> = {
   L: { n: 7, r: 0.034, s: 1.25 },
@@ -79,12 +123,12 @@ function onSphere(rand: Rand, r: number): Vec3 {
   return [r * s * Math.cos(t), r * u, r * s * Math.sin(t)];
 }
 
-function hexToRgb(hex: string): Vec3 {
+export function hexToRgb(hex: string): Vec3 {
   const n = parseInt(hex.slice(1), 16);
   return [((n >> 16) & 255) / 255, ((n >> 8) & 255) / 255, (n & 255) / 255];
 }
 
-function shuffled(n: number, rand: Rand): Uint32Array {
+export function shuffled(n: number, rand: Rand): Uint32Array {
   const a = new Uint32Array(n);
   for (let i = 0; i < n; i++) a[i] = i;
   for (let i = n - 1; i > 0; i--) {
@@ -97,13 +141,15 @@ function shuffled(n: number, rand: Rand): Uint32Array {
 function toShape(items: Item[]): Shape {
   const pos = new Float32Array(items.length * 3);
   const size = new Float32Array(items.length);
-  const accent = new Float32Array(items.length);
-  items.forEach(({ p, s, a = 0 }, i) => {
+  const tint = new Float32Array(items.length);
+  const normal = items.some((it) => it.n) ? new Float32Array(items.length * 3) : undefined;
+  items.forEach(({ p, s, t = TINT.palette, n }, i) => {
     pos.set(p, i * 3);
     size[i] = s;
-    accent[i] = a;
+    tint[i] = t;
+    if (normal && n) normal.set(n, i * 3);
   });
-  return { pos, size, accent };
+  return { pos, size, tint, normal };
 }
 
 /** `keep` in full, plus a random, even thinning of `rest` down to the budget. */
@@ -164,9 +210,19 @@ function poissonPass(c: Float32Array, r: number): number[] {
 
 /**
  * Up to `count` points from an oversampled, randomly ordered candidate set,
- * with neighbours roughly the same distance apart.
+ * with neighbours roughly the same distance apart. With `metric` (the same
+ * candidates in warped coordinates), "the same distance" is measured there,
+ * which lets the spacing vary smoothly from place to place.
  */
-function evenly(cands: Float32Array, count: number, rand: Rand): Float32Array {
+export function evenly(cands: Float32Array, count: number, rand: Rand, metric: Float32Array = cands): Float32Array {
+  const picked = evenlyPick(metric, count, rand);
+  const out = new Float32Array(picked.length * 3);
+  picked.forEach((c, i) => out.set(cands.subarray(c * 3, c * 3 + 3), i * 3));
+  return out;
+}
+
+/** As `evenly`, but returns which candidates were kept (to carry other data along with them). */
+function evenlyPick(cands: Float32Array, count: number, rand: Rand): number[] {
   const n = cands.length / 3;
   let best = Array.from({ length: n }, (_, i) => i);
   if (n > count) {
@@ -188,10 +244,7 @@ function evenly(cands: Float32Array, count: number, rand: Rand): Float32Array {
     const j = Math.floor(rand() * (i + 1));
     [best[i], best[j]] = [best[j], best[i]];
   }
-  const m = Math.min(count, best.length);
-  const out = new Float32Array(m * 3);
-  for (let i = 0; i < m; i++) out.set(cands.subarray(best[i] * 3, best[i] * 3 + 3), i * 3);
-  return out;
+  return best.slice(0, Math.min(count, best.length));
 }
 
 const OVERSAMPLE = 4;
@@ -200,10 +253,12 @@ const OVERSAMPLE = 4;
 /* Airliner — nose at +X, wings along Z, fin up +Y                     */
 /* ------------------------------------------------------------------ */
 
-function positionOnly(geo: THREE.BufferGeometry): THREE.BufferGeometry {
+/** Just the positions and normals (so parts with different extra attributes merge). */
+function positionNormal(geo: THREE.BufferGeometry): THREE.BufferGeometry {
   const src = geo.index ? geo.toNonIndexed() : geo;
   const out = new THREE.BufferGeometry();
   out.setAttribute("position", src.getAttribute("position"));
+  out.setAttribute("normal", src.getAttribute("normal"));
   return out;
 }
 
@@ -220,7 +275,7 @@ export const PLANE_RADIUS = 3.7;
  * wings swept back 37.5° with four engines slung beneath, and a tall swept
  * fin over wide tailplanes.
  */
-function airplane(target: number, rand: Rand): Shape {
+export function airplane(target: number, rand: Rand): Shape {
   // Fuselage radius along its length (x, radius), tail cone to blunt nose.
   const PROFILE: Pt[] = [
     [-5, 0], [-4.9, 0.12], [-4.4, 0.28], [-3.6, 0.42], [-2.5, 0.53], [-1.2, 0.56],
@@ -281,36 +336,57 @@ function airplane(target: number, rand: Rand): Shape {
 
   // Sampled part by part, dropping points hidden inside another part (the
   // fuselage's crown under the hump, the hump's sides inside the fuselage),
-  // so every particle sits on the outer skin.
+  // so every particle sits on the outer skin. Each keeps the surface normal
+  // where it sits: the shader sizes it by how squarely that faces the viewer.
   const SCALE = 0.72;
   type Hidden = (x: number, y: number, z: number) => boolean;
-  const sample = (parts: THREE.BufferGeometry[], n: number, s: number, hidden: Hidden): Item[] => {
-    const merged = mergeGeometries(parts.map(positionOnly));
+  /** For a rounded part: a point on its axis near p — normals must point away from it. */
+  type Core = (p: THREE.Vector3) => [number, number, number];
+  const sample = (parts: THREE.BufferGeometry[], n: number, s: number, hidden: Hidden, core?: Core): Item[] => {
+    const merged = mergeGeometries(parts.map(positionNormal));
     const sampler = new MeshSurfaceSampler(new THREE.Mesh(merged)).build();
     const v = new THREE.Vector3();
+    const nv = new THREE.Vector3();
     const cands: number[] = [];
+    const normals: number[] = [];
     for (let guard = 0; cands.length < n * OVERSAMPLE * 3 && guard < n * OVERSAMPLE * 6; guard++) {
-      sampler.sample(v);
+      sampler.sample(v, nv);
       if (hidden(v.x, v.y, v.z)) continue;
+      if (core) {
+        const [cx, cy, cz] = core(v);
+        if (nv.x * (v.x - cx) + nv.y * (v.y - cy) + nv.z * (v.z - cz) < 0) nv.negate();
+      }
+      nv.normalize();
       cands.push(v.x * SCALE, v.y * SCALE, v.z * SCALE);
+      normals.push(nv.x, nv.y, nv.z);
     }
     merged.dispose();
-    const pos = evenly(Float32Array.from(cands), n, rand);
-    const out: Item[] = [];
-    for (let i = 0; i < pos.length; i += 3) out.push({ p: [pos[i], pos[i + 1], pos[i + 2]], s });
-    return out;
+    const c = Float32Array.from(cands);
+    return evenlyPick(c, n, rand).map((k) => ({
+      p: [c[k * 3], c[k * 3 + 1], c[k * 3 + 2]] as Vec3,
+      s,
+      n: [normals[k * 3], normals[k * 3 + 1], normals[k * 3 + 2]] as Vec3,
+    }));
   };
   const insideFuselage: Hidden = (x, y, z) => Math.hypot(y, z) < radiusAt(x) - 0.01;
+  const fuselageCore: Core = (p) => [p.x, 0, 0];
+  const humpCore: Core = (p) => [p.x, HUMP.y, 0];
+  const engineCore: Core = (p) => {
+    const z = [-2.9, -1.6, 1.6, 2.9].reduce((a, b) => (Math.abs(b - p.z) < Math.abs(a - p.z) ? b : a));
+    return [p.x, -0.64 + Math.abs(z) * DIHEDRAL, z];
+  };
 
   // The tail is thin and far away, so it's sampled on its own at about twice
   // the density, with slightly larger particles — otherwise it all but vanishes.
   const tailN = Math.round(target * 0.2);
   const humpN = Math.round(target * 0.1);
   const bodyN = Math.round((target - tailN - humpN) * 0.55);
+  const engineN = Math.round((target - tailN - humpN - bodyN) * 0.22);
   const items = [
-    ...sample([fuselage], bodyN, 1, inHump),
-    ...sample([hump], humpN, 1, insideFuselage),
-    ...sample([wing, ...engines], target - tailN - humpN - bodyN, 1, insideFuselage),
+    ...sample([fuselage], bodyN, 1, inHump, fuselageCore),
+    ...sample([hump], humpN, 1, insideFuselage, humpCore),
+    ...sample([wing], target - tailN - humpN - bodyN - engineN, 1, insideFuselage),
+    ...sample(engines, engineN, 1, insideFuselage, engineCore),
     ...sample([fin, stabilizer], tailN, 1.25, insideFuselage),
   ];
   [fuselage, hump, wing, stabilizer, fin, ...engines].forEach((p) => p.dispose());
@@ -322,21 +398,26 @@ function airplane(target: number, rand: Rand): Shape {
 /* ------------------------------------------------------------------ */
 
 /**
- * Distances from the camera the sky spans, and how far past the frame's
- * edges it reaches. Stars sit roughly evenly spaced *in 3D*, so on screen
- * the far ones crowd together as tiny points while only a handful come
- * close enough to look large — plus a few `close` ones right in front of
- * the viewer, the largest of all, kept to the frame's edges (clear of the
- * models and the copy).
+ * Distances from the camera the sky spans — about a hundred levels of depth,
+ * from right in front of the viewer to 100 units out — and how far past the
+ * frame's edges it reaches. The further out, the more stars (per unit of
+ * depth, as the distance^1.5), so far away they crowd into a fine haze of
+ * tiny points while only a few drift by up close. In 3D they keep an even
+ * spacing that opens up only gently with distance (as its sixth root), so
+ * any two neighbours stay roughly the same gap apart. Plus a few
+ * `close` ones right in front of the viewer, the largest of all, kept to the
+ * frame's edges (clear of the models and the copy).
  */
-const SKY = { near: 1.5, far: 50, spreadX: 1.5, spreadY: 1.35, voids: 8, groups: 16, close: 8 };
+const SKY = { near: 1.2, far: 100, spreadX: 1.5, spreadY: 1.35, voids: 8, groups: 16, close: 6 };
+/** Depth at which the spacing is "1" in the warped space the even spacing is measured in. */
+const SKY_REF = 14;
 
-function deepSky(count: number, rand: Rand, { far = SKY.far, close = SKY.close } = {}): Float32Array {
+export function deepSky(count: number, rand: Rand, { far = SKY.far, close = SKY.close } = {}): Float32Array {
   const T = Math.tan((CAMERA_FOV / 2) * D2R);
   const aspect = 1.9; // ≈ the widest common aspect ratio
-  const n3 = SKY.near ** 3;
-  const f3 = far ** 3;
-  const distance = () => Math.cbrt(n3 + rand() * (f3 - n3)); // uniform through the volume
+  const lo = SKY.near ** 2.5;
+  const hi = far ** 2.5;
+  const distance = () => (lo + rand() * (hi - lo)) ** 0.4; // stars per unit of depth ∝ depth^1.5
   // Voids and groups are laid out along lines of sight (in screen units,
   // 1 = half the frame's height), so they read as dark gaps and denser star
   // systems on screen rather than being filled in by stars in front or behind.
@@ -345,7 +426,8 @@ function deepSky(count: number, rand: Rand, { far = SKY.far, close = SKY.close }
   const groups = Array.from({ length: SKY.groups }, () => ({ ...spot(), s: 0.14 + rand() * 0.16 }));
 
   const cands: number[] = [];
-  for (let guard = 0; cands.length < count * 9 && guard < count * 400; guard++) {
+  const metric: number[] = [];
+  for (let guard = 0; cands.length < count * 12 && guard < count * 500; guard++) {
     const d = distance();
     const u = (rand() * 2 - 1) * aspect * SKY.spreadX;
     const v = (rand() * 2 - 1) * SKY.spreadY;
@@ -354,11 +436,15 @@ function deepSky(count: number, rand: Rand, { far = SKY.far, close = SKY.close }
     for (const g of groups) density += Math.exp(-((u - g.u) ** 2 + (v - g.v) ** 2) / (2 * g.s * g.s));
     if (rand() * 1.2 > density) continue;
     cands.push(u * d * T, v * d * T, CAMERA_Z - d);
+    // Spacing measured in a space shrunk by (SKY_REF / d)^(1/6): gaps there
+    // are even, so out here they grow with the sixth root of the distance.
+    const w = (SKY_REF / d) ** (1 / 6);
+    metric.push(u * d * T * w, v * d * T * w, d * w);
   }
   // Even spacing in 3D: within a group every star keeps its distance; between
   // groups, where candidates are scarce, the gaps open up.
   const out = new Float32Array(count * 3);
-  out.set(evenly(Float32Array.from(cands), count - close, rand));
+  out.set(evenly(Float32Array.from(cands), count - close, rand, Float32Array.from(metric)));
 
   // The close ones, spaced apart on screen (relaxed if it takes too long).
   const placed: { u: number; v: number }[] = [];
@@ -369,7 +455,7 @@ function deepSky(count: number, rand: Rand, { far = SKY.far, close = SKY.close }
     if (Math.abs(v) < 0.55 && Math.abs(u) < 1.2) continue;
     if (strict && voids.some((o) => (u - o.u) ** 2 + (v - o.v) ** 2 < o.r * o.r)) continue;
     if (strict && placed.some((p) => (u - p.u) ** 2 + (v - p.v) ** 2 < 0.45 ** 2)) continue;
-    const d = SKY.near + 0.1 + rand() ** 0.8 * 3.5;
+    const d = SKY.near + 0.2 + rand() ** 0.8 * 3;
     out.set([u * d * T, v * d * T, CAMERA_Z - d], (count - close + placed.length) * 3);
     placed.push({ u, v });
   }
@@ -434,24 +520,36 @@ function alongLine(line: Pt[], step: number, rand: Rand, out: Vec3[], minPts = 0
 }
 
 /** A small ring of particles marking a place. */
-function marker(x: number, y: number, n: number, r: number, s: number, rand: Rand, out: Item[], z = 0, accent = 0) {
-  out.push({ p: [x, y, z], s, a: accent });
+function marker(x: number, y: number, n: number, r: number, s: number, rand: Rand, out: Item[], z = 0, tint: number = TINT.palette) {
+  out.push({ p: [x, y, z], s, t: tint });
   for (let k = 1; k < n; k++) {
     const a = (k / (n - 1)) * TAU + rand();
-    out.push({ p: [x + Math.cos(a) * r, y + Math.sin(a) * r, z], s: s * 0.8, a: accent });
+    out.push({ p: [x + Math.cos(a) * r, y + Math.sin(a) * r, z], s: s * 0.8, t: tint });
   }
 }
 
 /**
- * One route: an arc that bows out seaward (else north) and lifts a little
- * toward the viewer, so the network fans out over the East Sea as flight
- * paths rather than more lines on the provinces.
+ * One route, between two raised provinces' main airports: an arc that bows
+ * out seaward (else north) and lifts a little toward the viewer, so the
+ * network fans out over the East Sea as flight paths rather than more lines
+ * on the provinces.
  */
-function domesticRoute(from: string, to: string, rand: Rand, out: Item[]) {
-  const a = airport(from);
-  const b = airport(to);
-  const [ax, ay] = mapPoint(a.lon, a.lat);
-  const [bx, by] = mapPoint(b.lon, b.lat);
+/**
+ * A flight-line dot carries which line it's on and how far along (0..1)
+ * instead of a size; the shader sizes, colours and animates it from those
+ * (a pulse travelling the line). Packed into the size slot's fraction:
+ * (id · 512 + progress · 511) / 32768 — up to 64 lines per model.
+ */
+function routeDot(id: number, t: number): number {
+  return (id * 512 + Math.round(Math.min(1, Math.max(0, t)) * 511)) / 32768;
+}
+
+function domesticRoute(from: Unit, to: Unit, rand: Rand, out: Item[], id: number) {
+  const a = airport(from.a[0]);
+  const b = airport(to.a[0]);
+  const [ax, ay] = mapPoint(...placeIn(from, a.lon, a.lat));
+  const [bx, by] = mapPoint(...placeIn(to, b.lon, b.lat));
+  const [az, bz] = [LIFT[from.t] + 0.03, LIFT[to.t] + 0.03];
   const len = Math.hypot(bx - ax, by - ay);
   let nx = -(by - ay) / len;
   let ny = (bx - ax) / len;
@@ -468,41 +566,142 @@ function domesticRoute(from: string, to: string, rand: Rand, out: Item[]) {
     const t = (i + off) / n;
     const u = 1 - t;
     out.push({
-      p: [u * u * ax + 2 * u * t * cx + t * t * bx, u * u * ay + 2 * u * t * cy + t * t * by, Math.sin(Math.PI * t) * len * 0.08],
-      s: SIZE.route,
-      a: 1,
+      p: [
+        u * u * ax + 2 * u * t * cx + t * t * bx,
+        u * u * ay + 2 * u * t * cy + t * t * by,
+        az + (bz - az) * t + Math.sin(Math.PI * t) * len * 0.08,
+      ],
+      s: routeDot(id, t),
+      t: TINT.route,
     });
   }
 }
 
+/**
+ * The provinces with airports, raised above the map: how high each tier
+ * hovers (model units), and how its particles are drawn.
+ */
+export const LIFT = { dom: 0.3, intl: 0.48 } as const;
+const RAISED = {
+  dom: { tint: TINT.domestic, edge: 1.15, fill: 0.62 },
+  intl: { tint: TINT.international, edge: 1.3, fill: 0.7 },
+} as const;
+const FILL_STEP = 0.13; // model units between fill particles inside a raised province
+
+type Unit = GeoData["vietnam"]["units"][number];
+
+/** A raised province's placement: degrees in, degrees out (enlarged around its centre, then nudged apart). */
+const placeIn = (u: Unit, lon: number, lat: number): Pt => [
+  u.c[0] + (lon - u.c[0]) * u.k + u.o[0],
+  u.c[1] + (lat - u.c[1]) * u.k + u.o[1],
+];
+
+function decodeRings(rings: number[][], q: number): Pt[][] {
+  return rings.map((arr) => {
+    const pts: Pt[] = [];
+    let x = 0;
+    let y = 0;
+    for (let i = 0; i < arr.length; i += 2) {
+      x += arr[i];
+      y += arr[i + 1];
+      pts.push([x / q, y / q]);
+    }
+    return pts;
+  });
+}
+
+/** Even-odd: inside any of the rings (holes included). */
+function inRings(rings: Pt[][], x: number, y: number): boolean {
+  let inside = false;
+  for (const r of rings) {
+    for (let i = 0, j = r.length - 1; i < r.length; j = i++) {
+      const [xi, yi] = r[i];
+      const [xj, yj] = r[j];
+      if (yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) inside = !inside;
+    }
+  }
+  return inside;
+}
+
+/**
+ * Vietnam, drawn flat — the coast and all 34 provinces in quiet tones — with
+ * every province that has an airport raised above it, drawn larger and in
+ * its own colour: blue for domestic airports, gold (larger, higher) for
+ * international ones; neighbours spread apart so each stands clear. One
+ * flight line joins each pair of provinces with flights between them.
+ */
 function vietnam(budget: number, rand: Rand, geo: GeoData): Shape {
-  const { q, outline, borders } = geo.vietnam;
+  const { q, outline, borders, units } = geo.vietnam;
   // Offshore rings come from the archipelago list instead, sized by area.
   const offshore = (l: Pt[]) => l.every(([x]) => x / MAP_K + MAP_CX > 110);
   const coast = decodeLines(outline, q).filter((l) => !offshore(l));
   const inner = decodeLines(borders, q);
 
-  // Kept whole: every feature of Hoàng Sa and Trường Sa, and the airports.
+  // Kept whole: every feature of Hoàng Sa and Trường Sa, the raised
+  // provinces' edges and their airports.
   const keep: Item[] = [];
   for (const [, lat, lon, size] of [...HOANG_SA, ...TRUONG_SA]) {
     const [x, y] = mapPoint(lon, lat);
     const { n, r, s } = ISLAND[size];
     marker(x, y, n, r, s, rand, keep);
   }
-  for (const code of new Set(DOMESTIC_ROUTES.flat())) {
-    const a = airport(code);
-    const [x, y] = mapPoint(a.lon, a.lat);
-    marker(x, y, 3, 0.02, SIZE.airport, rand, keep, 0.02, 1);
-  }
 
-  // Thinned only if over budget: outline, province lines, routes.
+  // Thinned only if over budget: the base map, the raised provinces' fill, routes.
   const rest: Item[] = [];
   const pts: Vec3[] = [];
-  for (const l of coast) alongLine(l, OUTLINE_STEP, rand, pts, 3);
-  pts.splice(0).forEach((p) => rest.push({ p, s: 1.1 }));
+  // The coast: a fine, unbroken hairline (dimmed in the shader), never thinned.
+  for (const l of coast) alongLine(l, OUTLINE_STEP * 0.6, rand, pts, 3);
+  pts.splice(0).forEach((p) => keep.push({ p, s: 0.7, t: TINT.coast }));
   for (const l of inner) alongLine(l, OUTLINE_STEP * 1.3, rand, pts);
-  pts.splice(0).forEach((p) => rest.push({ p, s: 0.85 }));
-  for (const [from, to] of DOMESTIC_ROUTES) domesticRoute(from, to, rand, rest);
+  pts.splice(0).forEach((p) => rest.push({ p, s: 0.65, t: TINT.muted }));
+
+  const unitOf = new Map<string, Unit>();
+  for (const u of units) {
+    const look = RAISED[u.t];
+    const z = LIFT[u.t];
+    const rings = decodeRings(u.r, q);
+    // The edge, raised and enlarged…
+    for (const ring of rings) {
+      alongLine(
+        ring.map(([lon, lat]) => mapPoint(...placeIn(u, lon, lat))),
+        OUTLINE_STEP * 0.8,
+        rand,
+        pts,
+        3,
+      );
+    }
+    pts.splice(0).forEach(([x, y]) => keep.push({ p: [x, y, z], s: look.edge, t: look.tint }));
+    // …filled with a light grid, so it reads as a solid tile floating over the map.
+    const placed = rings.map((r) => r.map(([lon, lat]) => mapPoint(...placeIn(u, lon, lat))));
+    const xs = placed.flat().map((p) => p[0]);
+    const ys = placed.flat().map((p) => p[1]);
+    const jitter = () => (rand() - 0.5) * FILL_STEP * 0.3;
+    for (let y = Math.min(...ys) + FILL_STEP / 2; y < Math.max(...ys); y += FILL_STEP) {
+      for (let x = Math.min(...xs) + FILL_STEP / 2; x < Math.max(...xs); x += FILL_STEP) {
+        if (inRings(placed, x, y)) rest.push({ p: [x + jitter(), y + jitter(), z], s: look.fill, t: look.tint });
+      }
+    }
+    // Its airports, on top.
+    for (const code of u.a) {
+      unitOf.set(code, u);
+      const a = airport(code);
+      const [x, y] = mapPoint(...placeIn(u, a.lon, a.lat));
+      marker(x, y, 4, 0.03, SIZE.airport * 1.5, rand, keep, z + 0.03, TINT.ink);
+    }
+  }
+
+  // One line per pair of provinces (Hà Nội – TP. Hồ Chí Minh once, whichever
+  // airports the flights use), between their main airports.
+  const seen = new Set<string>();
+  for (const [from, to] of DOMESTIC_ROUTES) {
+    const ua = unitOf.get(from);
+    const ub = unitOf.get(to);
+    if (!ua || !ub || ua === ub) continue;
+    const key = [ua.n, ub.n].sort().join("|");
+    if (seen.has(key)) continue;
+    seen.add(key);
+    domesticRoute(ua, ub, rand, rest, seen.size);
+  }
 
   return take(rest, budget, rand, keep);
 }
@@ -635,7 +834,7 @@ function ticket(budget: number, rand: Rand): Shape {
 
 const GLOBE_ROUTE_STEP = 0.11;
 
-function landMask(geo: GeoData): (lat: number, lon: number) => boolean {
+export function landMask(geo: GeoData): (lat: number, lon: number) => boolean {
   const { w, h, rle } = geo.land;
   const bits = new Uint8Array(w * h);
   rle.split("|").forEach((row, y) => {
@@ -662,8 +861,18 @@ function latLon(lat: number, lon: number, r: number): Vec3 {
   return [r * Math.cos(phi) * Math.sin(th), r * Math.sin(phi), r * Math.cos(phi) * Math.cos(th)];
 }
 
-/** A great-circle arc, lifted a little off the surface — a touch higher for longer flights. */
-function greatCircle(from: [number, number], to: [number, number], rand: Rand, out: Item[]) {
+/**
+ * How far Vietnam's border floats over the globe, as a share of its radius —
+ * the same height on screen as the international provinces over the map
+ * (LIFT.intl at the map's desktop scale, 1.22, over the globe's, 1.34).
+ */
+export const GLOBE_VN_LIFT = (LIFT.intl * 1.22) / 1.34 / GLOBE_RADIUS;
+
+/**
+ * A great-circle arc from radius r0 to r1 (shares of the globe's), lifted a
+ * little off the surface between — a touch higher for longer flights.
+ */
+function greatCircle(from: readonly [number, number], to: readonly [number, number], rand: Rand, out: Item[], id: number, r0 = 1, r1 = 1) {
   const a = new THREE.Vector3(...latLon(from[0], from[1], 1));
   const b = new THREE.Vector3(...latLon(to[0], to[1], 1));
   const ang = a.angleTo(b);
@@ -678,41 +887,139 @@ function greatCircle(from: [number, number], to: [number, number], rand: Rand, o
       .multiplyScalar(Math.sin((1 - t) * ang))
       .addScaledVector(b, Math.sin(t * ang))
       .divideScalar(Math.sin(ang))
-      .multiplyScalar(GLOBE_RADIUS * (1 + lift * Math.sin(Math.PI * t)));
-    out.push({ p: [p.x, p.y, p.z], s: SIZE.globeRoute, a: 1 });
+      .multiplyScalar(GLOBE_RADIUS * (r0 + (r1 - r0) * t + lift * Math.sin(Math.PI * t)));
+    out.push({ p: [p.x, p.y, p.z], s: routeDot(id, t), t: TINT.route });
   }
 }
 
-function globeMarker(lat: number, lon: number, n: number, s: number, rand: Rand, out: Item[]) {
-  out.push({ p: latLon(lat, lon, GLOBE_RADIUS * 1.004), s, a: 1 });
+function globeMarker(lat: number, lon: number, n: number, s: number, rand: Rand, out: Item[], r = 1.004) {
+  out.push({ p: latLon(lat, lon, GLOBE_RADIUS * r), s, t: TINT.accent });
   for (let k = 1; k < n; k++) {
     const a = (k / (n - 1)) * TAU + rand();
-    out.push({ p: latLon(lat + Math.sin(a) * 0.9, lon + Math.cos(a) * 0.9, GLOBE_RADIUS * 1.004), s: s * 0.8, a: 1 });
+    out.push({ p: latLon(lat + Math.sin(a) * 0.9, lon + Math.cos(a) * 0.9, GLOBE_RADIUS * r), s: s * 0.8, t: TINT.accent });
   }
 }
+
+/** Land height in metres at any point, from the 1° grid (bilinear); 0 over the sea. */
+function elevation(geo: GeoData): (lat: number, lon: number) => number {
+  const { w, h, top, rows } = geo.elevation;
+  const LEVELS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  const grid = new Float32Array(w * h);
+  rows.split("|").forEach((row, y) => {
+    let x = 0;
+    for (let i = 0; i < row.length; i++) {
+      if (row[i] === ".") {
+        const end = row.indexOf(".", i + 1);
+        x += parseInt(row.slice(i + 1, end), 36);
+        i = end;
+      } else {
+        const level = LEVELS.indexOf(row[i]) / 61;
+        grid[y * w + x++] = level * level * top;
+      }
+    }
+  });
+  const at = (x: number, y: number) => grid[Math.min(h - 1, Math.max(0, y)) * w + (((x % w) + w) % w)];
+  return (lat, lon) => {
+    const fx = lon + 180 - 0.5;
+    const fy = 90 - lat - 0.5;
+    const x0 = Math.floor(fx);
+    const y0 = Math.floor(fy);
+    const tx = fx - x0;
+    const ty = fy - y0;
+    const top0 = at(x0, y0) * (1 - tx) + at(x0 + 1, y0) * tx;
+    const bottom = at(x0, y0 + 1) * (1 - tx) + at(x0 + 1, y0 + 1) * tx;
+    return top0 * (1 - ty) + bottom * ty;
+  };
+}
+
+/** The terrain in particle sizes: the higher the land, the larger its particles; the coast the smallest. */
+const terrainSize = (metres: number) => 0.42 + 1.5 * Math.min(1, Math.max(0, metres) / 5000) ** 0.6;
+/** Relief: land rises off the sphere with its height (exaggerated, so the ranges stand out in 3D). */
+const reliefAt = (metres: number) => 1 + 0.04 * Math.min(1, Math.max(0, metres) / 5000) ** 0.7;
 
 function globe(budget: number, rand: Rand, geo: GeoData): Shape {
   const extra: Item[] = [];
-  for (const [from, , lat, lon] of INTERNATIONAL_ROUTES) greatCircle(GATEWAYS[from], [lat, lon], rand, extra);
-  for (const [lat, lon] of Object.values(GATEWAYS)) globeMarker(lat, lon, 4, 0.8, rand, extra);
-  const destinations = new Map(INTERNATIONAL_ROUTES.map(([, name, lat, lon]) => [name, [lat, lon] as const]));
-  for (const [lat, lon] of destinations.values()) globeMarker(lat, lon, 3, 0.6, rand, extra);
+  const vnR = 1 + GLOBE_VN_LIFT;
 
-  // Land everywhere, front and back; the back is drawn small by depth.
-  const isLand = landMask(geo);
-  const target = Math.max(0, budget - extra.length);
-  const want = target * OVERSAMPLE;
-  const cands: number[] = [];
-  for (let guard = 0; cands.length < want * 3 && guard < want * 40; guard++) {
-    const [x, y, z] = onSphere(rand, 1);
-    const lat = Math.asin(y) / D2R;
-    const lon = GLOBE_LON0 + Math.atan2(x, z) / D2R;
-    if (!isLand(lat, lon > 180 ? lon - 360 : lon)) continue;
-    cands.push(x * GLOBE_RADIUS, y * GLOBE_RADIUS, z * GLOBE_RADIUS);
+  // Vietnam's border — coast and land borders, both archipelagos too —
+  // floating above the globe in red.
+  const { q, outline } = geo.vietnam;
+  for (const line of decodeRings(outline, q)) {
+    const along: Vec3[] = [];
+    alongLine(line, 0.3, rand, along, 2);
+    for (const [lon, lat] of along) extra.push({ p: latLon(lat, lon, GLOBE_RADIUS * vnR), s: 0.62, t: TINT.vietnam });
   }
-  const land = evenly(Float32Array.from(cands), target, rand);
+
+  // One line to each destination, from the gateway that serves it (or the
+  // first that does), rising off Vietnam's raised border.
+  const served = new Map<string, { from: string; at: [number, number] }>();
+  for (const [from, name, lat, lon] of INTERNATIONAL_ROUTES) if (!served.has(name)) served.set(name, { from, at: [lat, lon] });
+  [...served.values()].forEach(({ from, at }, id) => greatCircle(GATEWAYS[from], at, rand, extra, id, vnR, 1.004));
+  for (const code of new Set([...served.values()].map((s) => s.from))) {
+    const [lat, lon] = GATEWAYS[code];
+    globeMarker(lat, lon, 4, 0.85, rand, extra, vnR);
+  }
+  for (const { at } of served.values()) globeMarker(at[0], at[1], 3, 0.6, rand, extra);
+
+  // Land in two layers, so the continents read: their coastlines, traced
+  // as a fine continuous edge, and the land inside, each particle sized by
+  // the height of the land under it. The side that faces the viewer while
+  // the globe is on screen (it turns from 52° east of its rest to rest) gets
+  // most of the particles; the far side, drawn small by depth anyway, few.
+  const isLand = landMask(geo);
+  const heightAt = elevation(geo);
+  const lonOf = (x: number, z: number) => {
+    const lon = GLOBE_LON0 + Math.atan2(x, z) / D2R;
+    return lon > 180 ? lon - 360 : lon;
+  };
+  const seaNear = (lat: number, lon: number) =>
+    !isLand(lat + 0.7, lon) || !isLand(lat - 0.7, lon) || !isLand(lat, lon + 0.7) || !isLand(lat, lon - 0.7);
+  const front = new THREE.Vector3(...latLon(GLOBE_FACING_LAT, GLOBE_LON0 + 26, 1));
+  const target = Math.max(0, budget - extra.length);
+  const coastN = Math.round(target * 0.3);
+  const bordersN = Math.round(target * 0.18);
+  const want = target * OVERSAMPLE;
+  const coast: number[] = [];
+  const inland: number[] = [];
+  for (let guard = 0; coast.length + inland.length < want * 3 && guard < want * 60; guard++) {
+    const [x, y, z] = onSphere(rand, 1);
+    if (x * front.x + y * front.y + z * front.z < -0.2 && rand() > 0.3) continue; // the far side, thinly
+    const lat = Math.asin(y) / D2R;
+    const lon = lonOf(x, z);
+    if (!isLand(lat, lon)) continue;
+    (seaNear(lat, lon) ? coast : inland).push(x * GLOBE_RADIUS, y * GLOBE_RADIUS, z * GLOBE_RADIUS);
+  }
   const items: Item[] = [];
-  for (let i = 0; i < land.length; i += 3) items.push({ p: [land[i], land[i + 1], land[i + 2]], s: 1 });
+  /** A land point, lifted by its relief and sized by its height. */
+  const landItem = (x: number, y: number, z: number, s?: number): Item => {
+    const h = heightAt(Math.asin(y / GLOBE_RADIUS) / D2R, lonOf(x, z));
+    const k = reliefAt(h);
+    return { p: [x * k, y * k, z * k], s: s ?? terrainSize(h) };
+  };
+
+  // Country borders: fine dotted lines in their own colour, on the side
+  // that faces the viewer (thinned if there's more than their share).
+  const borders: Item[] = [];
+  for (const line of decodeRings(geo.countries.lines, geo.countries.q)) {
+    const along: Vec3[] = [];
+    alongLine(line, 0.4, rand, along);
+    for (const [lon, lat] of along) {
+      const [x, y, z] = latLon(lat, lon, GLOBE_RADIUS);
+      if ((x * front.x + y * front.y + z * front.z) / GLOBE_RADIUS < -0.1) continue;
+      const it = landItem(x, y, z, 0.5);
+      it.p = [it.p[0] * 1.003, it.p[1] * 1.003, it.p[2] * 1.003];
+      borders.push({ ...it, t: TINT.border });
+    }
+  }
+  const borderShape = take(borders, bordersN, rand);
+  for (let i = 0; i < borderShape.size.length; i++) {
+    items.push({ p: [borderShape.pos[i * 3], borderShape.pos[i * 3 + 1], borderShape.pos[i * 3 + 2]], s: 0.62, t: TINT.border });
+  }
+
+  const edge = evenly(Float32Array.from(coast), coastN, rand);
+  for (let i = 0; i < edge.length; i += 3) items.push(landItem(edge[i], edge[i + 1], edge[i + 2], 0.78));
+  const land = evenly(Float32Array.from(inland), target - edge.length / 3 - borderShape.size.length, rand);
+  for (let i = 0; i < land.length; i += 3) items.push(landItem(land[i], land[i + 1], land[i + 2]));
   return toShape([...items, ...extra]);
 }
 
@@ -727,8 +1034,8 @@ export type LogoPixels = { w: number; h: number; data: Uint8ClampedArray };
 export const LOGO_W = 9;
 const LOGO_BEND = 0.9;
 
-function logo(budget: number, rand: Rand, px: LogoPixels | null): Shape & { color: Float32Array } {
-  const empty = { pos: new Float32Array(0), size: new Float32Array(0), accent: new Float32Array(0), color: new Float32Array(0) };
+export function logo(budget: number, rand: Rand, px: LogoPixels | null): Shape & { color: Float32Array } {
+  const empty = { pos: new Float32Array(0), size: new Float32Array(0), tint: new Float32Array(0), color: new Float32Array(0) };
   if (!px) return empty;
   const { w, h, data } = px;
   const at = (x: number, y: number) => (Math.floor(y) * w + Math.floor(x)) * 4;
@@ -772,7 +1079,7 @@ export const SLOT = { PLANE: 0, SKY: 1, MAP: 2, GLOBE: 3, TICKET: 4, LOGO: 5 } a
 export const GLOBE_SPIN_FROM = -0.9;
 
 /** Most particles each model may use (share of all); the rest stay behind as stars. */
-const BUDGET = { plane: 0.62, map: 0.5, ticket: 0.95, globe: 0.78, logo: 0.95 };
+const BUDGET = { plane: 0.62, map: 0.5, ticket: 0.95, globe: 0.9, logo: 0.95 };
 /** Columns the side-by-side hand-over is organised in. */
 const HANDOVER_COLUMNS = 28;
 
@@ -783,9 +1090,9 @@ export type ParticleData = {
   /** N×4: 1 if the particle belongs to plane, map, globe, ticket. */
   active: Float32Array;
   /**
-   * N×4: size factor within plane, map, globe, ticket (islands by area, fine
-   * route lines, the tail) — negative where it's drawn in the accent colour
-   * (flight lines, airports). Packed to stay within the GPU's attribute limit.
+   * N×4: within plane, map, globe, ticket: colour class (TINT) × 10 + size
+   * factor (islands by area, fine route lines, the tail, the terrain).
+   * Packed to stay within the GPU's attribute limit.
    */
   shapeSize: Float32Array;
   /**
@@ -801,16 +1108,18 @@ export type ParticleData = {
   logo: Float32Array;
   /** N×4: rgb palette colour, a random 0..1. */
   colorRand: Float32Array;
+  /** N×3: the plane's surface normal at each of its particles (model space). */
+  normal: Float32Array;
 };
 
 /** Evenly picks k of the items, keeping their order. */
-function spreadPick<T>(items: T[], k: number): T[] {
+export function spreadPick<T>(items: T[], k: number): T[] {
   if (k >= items.length) return items.slice();
   return Array.from({ length: k }, (_, j) => items[Math.floor(((j + 0.5) * items.length) / k)]);
 }
 
 /** Columns left to right, each read bottom to top — an order two shapes can share. */
-function columnOrder<T>(items: T[], x: (t: T) => number, y: (t: T) => number): T[] {
+export function columnOrder<T>(items: T[], x: (t: T) => number, y: (t: T) => number): T[] {
   const byX = items.slice().sort((a, b) => x(a) - x(b));
   const out: T[] = [];
   for (let c = 0; c < HANDOVER_COLUMNS; c++) {
@@ -824,7 +1133,7 @@ function columnOrder<T>(items: T[], x: (t: T) => number, y: (t: T) => number): T
 }
 
 /** 0 for the leftmost item … 1 for the rightmost. */
-function xQuantiles<T>(items: T[], x: (t: T) => number): Map<T, number> {
+export function xQuantiles<T>(items: T[], x: (t: T) => number): Map<T, number> {
   const sorted = items.slice().sort((a, b) => x(a) - x(b));
   const q = new Map<T, number>();
   sorted.forEach((it, i) => q.set(it, sorted.length > 1 ? i / (sorted.length - 1) : 0.5));
@@ -862,7 +1171,8 @@ export async function startParticles(count: number, logoPixels: LogoPixels | nul
   slots[SLOT.SKY] = sky;
   const act = modelSlot.map(() => new Uint8Array(count));
   const size = modelSlot.map(() => new Float32Array(count).fill(1));
-  const acc = modelSlot.map(() => new Float32Array(count));
+  const tint = modelSlot.map(() => new Float32Array(count));
+  const normal = new Float32Array(count * 3);
   const logoColor = new Float32Array(count * 3);
   const timing = {
     planeUp: new Float32Array(count),
@@ -878,7 +1188,8 @@ export async function startParticles(count: number, logoPixels: LogoPixels | nul
     slots[modelSlot[m]].set(shape.pos.subarray(k * 3, k * 3 + 3), i * 3);
     act[m][i] = 1;
     size[m][i] = shape.size[k];
-    acc[m][i] = shape.accent[k];
+    tint[m][i] = shape.tint[k];
+    if (shape.normal) normal.set(shape.normal.subarray(k * 3, k * 3 + 3), i * 3);
     if (m === 4) logoColor.set(logoShape.color.subarray(k * 3, k * 3 + 3), i * 3);
   };
   const members = (m: number) => {
@@ -914,6 +1225,7 @@ export async function startParticles(count: number, logoPixels: LogoPixels | nul
     slots,
     active: new Float32Array(count * 4),
     shapeSize: new Float32Array(count * 4),
+    normal,
     order: new Float32Array(count * 4),
     logo: new Float32Array(count * 4),
     colorRand,
@@ -923,7 +1235,7 @@ export async function startParticles(count: number, logoPixels: LogoPixels | nul
     for (let i = 0; i < count; i++) {
       for (let m = 0; m < 4; m++) {
         data.active[i * 4 + m] = act[m][i];
-        data.shapeSize[i * 4 + m] = acc[m][i] ? -size[m][i] : size[m][i]; // negative = accent colour
+        data.shapeSize[i * 4 + m] = tint[m][i] * 10 + size[m][i]; // colour class × 10 + size
       }
       data.order.set([timing.planeUp[i], timing.mapUp[i], timing.mapGlobe[i], timing.globeTicket[i]], i * 4);
       const [r, g, b] = [0, 1, 2].map((c) => Math.round(logoColor[i * 3 + c] * 255));
@@ -1022,15 +1334,86 @@ export async function startParticles(count: number, logoPixels: LogoPixels | nul
   };
 }
 
-/** A second, fainter and deeper sky behind everything (it only ever flies through). */
-export function buildAmbient(count: number) {
+/** What each background particle is (aStar.x in the sky shader). */
+export const STAR = { field: 0, virgo: 1, line: 2, neighbour: 3, galaxy: 4 } as const;
+
+/**
+ * The background, behind everything: a second deep field of stars (fainter,
+ * flying through with the open sky), and — fixed, as if infinitely far —
+ * the constellation Virgo with its figure, the bright stars around it and
+ * the galaxies of the Virgo Cluster beyond.
+ */
+export function buildAmbient(fieldCount: number) {
   const rand = mulberry32(7);
-  const pos = deepSky(count, rand, { far: 62, close: 5 });
-  const colors = PALETTE.map(([hex]) => hexToRgb(hex));
-  const colorRand = new Float32Array(count * 4);
-  for (let i = 0; i < count; i++) {
-    colorRand.set(colors[Math.floor(rand() * colors.length)], i * 4);
-    colorRand[i * 4 + 3] = rand();
+  const palette = PALETTE.map(([hex]) => hexToRgb(hex));
+  type Entry = { p: Vec3; c: Vec3; star: [number, number, number, number] };
+  const entries: Entry[] = [];
+
+  // The deep field: world space, 100 units deep, streaming by in the fly-through.
+  const field = deepSky(fieldCount, rand, { close: 4 });
+  for (let i = 0; i < fieldCount; i++) {
+    entries.push({
+      p: [field[i * 3], field[i * 3 + 1], field[i * 3 + 2]],
+      c: palette[Math.floor(rand() * palette.length)],
+      star: [STAR.field, 0, 1, 0],
+    });
   }
-  return { pos, colorRand };
+
+  // Virgo and the sky around it, where they really are: positions in sky
+  // tangent units plus a depth (the scene fits them to the screen; see virgoFit).
+  const magSize = (mag: number) => Math.min(2.6, Math.max(0.7, 2.5 - 0.38 * mag));
+  const at = (s: CatalogStar): Vec3 => [...project(s.ra, s.dec), depthFor(s.ly)];
+  const pts = VIRGO.map(at);
+  VIRGO.forEach((s, i) =>
+    entries.push({ p: pts[i], c: hexToRgb(SPECTRAL[s.type]), star: [STAR.virgo, virgoOn(i), magSize(s.mag) * 1.5, 0] }),
+  );
+
+  // The stick figure, as fine dotted lines that draw themselves from one star
+  // to the next as the sequence reaches it.
+  const LINE_STEP = 0.012; // sky tangent units between dots
+  const LINE_GAP = 0.02; // left clear around each star
+  const lineColor = hexToRgb("#cfe3ff");
+  for (const [a, b] of VIRGO_LINES) {
+    const [early, late] = virgoOn(a) < virgoOn(b) ? [a, b] : [b, a];
+    const pa = pts[early];
+    const pb = pts[late];
+    const len = Math.hypot(pb[0] - pa[0], pb[1] - pa[1]);
+    const draw = Math.min(1.1, virgoOn(late) - virgoOn(early)); // seconds the line takes to draw
+    const n = Math.max(2, Math.round((len - 2 * LINE_GAP) / LINE_STEP));
+    for (let k = 0; k <= n; k++) {
+      const s = (LINE_GAP + (k / n) * (len - 2 * LINE_GAP)) / len;
+      entries.push({
+        p: [pa[0] + (pb[0] - pa[0]) * s, pa[1] + (pb[1] - pa[1]) * s, pa[2] + (pb[2] - pa[2]) * s],
+        c: lineColor,
+        star: [STAR.line, virgoOn(late) - draw + s * draw, 0.32, 0],
+      });
+    }
+  }
+
+  for (const s of NEIGHBOURS) entries.push({ p: at(s), c: hexToRgb(SPECTRAL[s.type]), star: [STAR.neighbour, 0, magSize(s.mag) * 1.15, 0] });
+
+  // The Virgo Cluster, far beyond the stars: its Messier galaxies, and fainter
+  // members scattered about them — soft specks of warm and cool white.
+  const galaxyTints = [hexToRgb("#ffe9c8"), hexToRgb("#d6e4ff")];
+  const galaxy = (ra: number, dec: number, size: number) =>
+    entries.push({
+      p: [...project(ra, dec), 86 + rand() * 13],
+      c: galaxyTints[Math.floor(rand() * 2)],
+      star: [STAR.galaxy, 0, size, 0],
+    });
+  for (const [ra, dec] of VIRGO_CLUSTER) galaxy(ra, dec, 1.5);
+  const gauss = () => Math.sqrt(-2 * Math.log(1 - rand())) * Math.cos(2 * Math.PI * rand());
+  for (let i = 0; i < 50; i++) galaxy(CLUSTER_CENTER[0] + gauss() * 2.6, CLUSTER_CENTER[1] + gauss() * 2.4, 0.9 + rand() * 0.5);
+
+  const n = entries.length;
+  const pos = new Float32Array(n * 3);
+  const colorRand = new Float32Array(n * 4);
+  const star = new Float32Array(n * 4);
+  entries.forEach((e, i) => {
+    pos.set(e.p, i * 3);
+    colorRand.set(e.c, i * 4);
+    colorRand[i * 4 + 3] = rand();
+    star.set(e.star, i * 4);
+  });
+  return { pos, colorRand, star };
 }

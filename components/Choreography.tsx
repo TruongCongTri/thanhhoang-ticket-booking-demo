@@ -7,6 +7,7 @@ import { SplitText } from "gsap/SplitText";
 import Lenis from "lenis";
 import { LOAD } from "@/lib/loading";
 import { hasLocale, intlLocale } from "@/lib/i18n";
+import { HALT_SCROLL, isSeamless } from "@/components/story/bus";
 
 gsap.registerPlugin(ScrollTrigger, SplitText);
 
@@ -67,6 +68,9 @@ export default function Choreography() {
       scrollToY(anchorY(target), false);
     };
     document.addEventListener("click", onAnchorClick);
+    // A story page hand-off is completing: hold the page where it is.
+    const halt = () => lenis?.stop();
+    window.addEventListener(HALT_SCROLL, halt);
 
     const ctx = gsap.context(() => {
       if (!reduced) {
@@ -127,15 +131,24 @@ export default function Choreography() {
             if (!self.isActive) return;
             dots.forEach((d, j) => d.toggleAttribute("data-active", i === j));
             if (counter) counter.textContent = String(i + 1).padStart(2, "0");
+            // The address follows along (no history entries, no jump): the
+            // first section is the page itself, every other its #section.
+            if (html.hasAttribute("data-loading")) return;
+            const hash = i === 0 ? "" : `#${stage.id}`;
+            if (window.location.hash !== hash) {
+              history.replaceState(history.state, "", `${window.location.pathname}${window.location.search}${hash}`);
+            }
           },
         });
       });
     });
 
     /** The hero copy's entrance, once the loading screen lifts. */
+    // Skipped after a story hand-off: the hero is already on screen, drawn in place.
+    const seamless = isSeamless();
     const revealHero = () =>
       ctx.add(() => {
-        if (reduced) return;
+        if (reduced || seamless) return;
         gsap.utils.toArray<HTMLElement>("[data-split='hero']").forEach((el) => {
           SplitText.create(el, {
             type: "lines",
@@ -182,6 +195,7 @@ export default function Choreography() {
     return () => {
       window.removeEventListener(LOAD.ready, begin);
       document.removeEventListener("click", onAnchorClick);
+      window.removeEventListener(HALT_SCROLL, halt);
       ctx.revert();
       gsap.ticker.remove(raf);
       lenis?.destroy();
