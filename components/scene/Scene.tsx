@@ -407,6 +407,8 @@ export default function Scene({ labels }: { labels?: readonly string[] }) {
         if (!alive) return;
         const refresh = addConstellation(build.data);
         gsap.to(uniforms.uAppear, { value: 1, duration: 0.8, ease: "power1.out" });
+        // the particles are up: the static boot logo can fade (see BootLogo)
+        document.documentElement.setAttribute("data-particles", "");
         progress(0.15);
         await build.complete(geoData as GeoData, (p) => {
           if (alive) progress(0.15 + p * 0.85);

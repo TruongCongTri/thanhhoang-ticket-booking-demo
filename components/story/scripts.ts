@@ -26,6 +26,8 @@ export type Place = {
   dy?: number;
   /** As dy, on phones and tablets only (where the model is centred behind the copy). */
   compactDy?: number;
+  /** As fill, on phones and tablets only (1 = the screen's width, or the room's height). */
+  compactFill?: number;
 };
 
 export type ModelKey =
@@ -38,6 +40,18 @@ export type ModelKey =
   | "values"
   | "pie"
   | "org"
+  | "svc-ticket"
+  | "svc-group"
+  | "svc-visa"
+  | "svc-tour"
+  | "svc-corp"
+  | "share"
+  | "pillars"
+  | "process"
+  | "radar"
+  | "trophy"
+  | "partners-dom"
+  | "partners-intl"
   | "logo";
 
 export type Frame = {
@@ -70,17 +84,31 @@ export type Frame = {
    * until then they wait in the sky.
    */
   reveal?: readonly number[];
+  /**
+   * With `lit: "scroll"`: only the lit group is shown — each in turn
+   * dissolves into the sky as the next gathers in its place (the partner
+   * logos, one at a time, in the same spot).
+   */
+  solo?: boolean;
 };
 
+/**
+ * A company page's chapter, in screens of scroll (the home page's are 1.5):
+ * shorter, so pages with a lot of content don't take long to get through.
+ * StoryPage hands it to the markup as --stage; the scene lays its timeline
+ * out with it.
+ */
+export const STAGE_SCREENS = 1;
+
 /** Scroll per step of a stepped chapter, in screens. */
-export const STEP_SCREENS = 0.6;
+export const STEP_SCREENS = 0.35;
 
 /** The scroll each of a frame's steps takes, in screens. */
 export const stepLengths = (f: Frame) =>
   Array.from({ length: f.steps ?? 0 }, (_, i) => f.stepScreens?.[i] ?? STEP_SCREENS);
 
-/** A chapter's length in screens: 1.5, plus room for each of its steps. */
-export const stageScreens = (f: Frame | undefined) => 1.5 + (f ? stepLengths(f).reduce((a, b) => a + b, 0) : 0);
+/** A chapter's length in screens: STAGE_SCREENS, plus room for each of its steps. */
+export const stageScreens = (f: Frame | undefined) => STAGE_SCREENS + (f ? stepLengths(f).reduce((a, b) => a + b, 0) : 0);
 
 
 const LOGO: Frame = { model: "logo", place: { side: "logo" }, enter: "sweep" };
@@ -110,29 +138,80 @@ export const SCRIPTS: Record<StoryPageId, Frame[]> = {
     // (on phones in the lower half of the screen, under the pinned copy)
     {
       model: "org",
-      place: { side: "right", rx: -0.06, fill: 1.24, compactDy: -0.42 },
+      place: { side: "right", rx: -0.06, fill: 1.24, compactFill: 1, compactDy: -0.36 },
       enter: "rise",
       spin: 0.12,
       hover: true,
       steps: 3,
-      // slowly, position by position: each level's scroll in proportion to
-      // how many it brings in (2, 5, 10)
-      stepScreens: [1.1, 1.8, 3.0],
+      // each level's scroll in proportion to how many it brings in (2, 5, 10),
+      // brisk enough that the whole structure is out in a few flicks
+      stepScreens: [0.35, 0.5, 0.75],
       reveal: [0, 2, 7, 17],
     },
     LOGO,
   ],
-  // not yet published: each will open on its first chapter's model
-  services: [LOGO],
-  achievements: [LOGO],
+  services: [
+    // the opening: the company's own logo, beside "Dịch vụ & Vận hành"
+    { model: "logo", place: { side: "right", ry: -0.22, fill: 0.95 } },
+    // the five featured services, each its own model, sweeping one into the next
+    { model: "svc-ticket", place: { side: "right", rx: 0.12, ry: -0.3 }, enter: "regather" },
+    { model: "svc-group", place: { side: "right", rx: 0.1, ry: -0.22 }, enter: "sweep" },
+    { model: "svc-visa", place: { side: "right", rx: 0.08, ry: -0.28 }, enter: "sweep" },
+    { model: "svc-tour", place: { side: "right", rx: 0.1, ry: -0.3 }, enter: "sweep" },
+    { model: "svc-corp", place: { side: "right", rx: 0.12, ry: -0.42 }, enter: "sweep" },
+    // what customers choose: one bar after another, each lit as its share is read
+    {
+      model: "share",
+      place: { side: "left", rx: 0.1, ry: 0.16, compactDy: -0.3 },
+      enter: "rise",
+      steps: 5,
+      lit: "scroll",
+      reveal: [0, 1, 2, 3, 4, 5],
+    },
+    // the principles: six pillars, rising one by one
+    {
+      model: "pillars",
+      place: { side: "right", rx: 0.12, ry: -0.2, compactDy: -0.3 },
+      enter: "rise",
+      steps: 6,
+      lit: "scroll",
+      reveal: [0, 1, 2, 3, 4, 5, 6],
+    },
+    // the process: the light travels along the path, from one step to the next
+    { model: "process", place: { side: "left", rx: 0.25, ry: 0.3, compactDy: -0.3 }, enter: "sweep", steps: 4, lit: "scroll" },
+    // the strengths: a radar, each spoke reaching out in turn
+    {
+      model: "radar",
+      place: { side: "right", rx: -0.28, ry: -0.1, compactDy: -0.3 },
+      enter: "regather",
+      spin: 0.1,
+      steps: 5,
+      lit: "scroll",
+      reveal: [0, 1, 2, 3, 4, 5],
+    },
+    LOGO,
+  ],
+  // not yet published: it will open on its first chapter's model
+  achievements: [
+    // the opening: the company's own logo, beside "Thành tựu & Đối tác"
+    { model: "logo", place: { side: "right", ry: -0.22, fill: 0.95 } },
+    // the trophy, its stars lighting one by one along the awards timeline
+    { model: "trophy", place: { side: "right", rx: 0.12, compactDy: -0.3 }, enter: "rise", spin: 0.35, steps: 5, lit: "scroll" },
+    // the partner airlines, card by card: at home, then abroad
+    { model: "partners-dom", place: { side: "left", rx: 0.06, ry: 0.2, compactDy: -0.3 }, enter: "regather", steps: 4, lit: "scroll", solo: true },
+    { model: "partners-intl", place: { side: "left", rx: 0.06, ry: 0.2, compactDy: -0.3 }, enter: "regather", steps: 6, lit: "scroll", solo: true },
+    // Lời kết: everything gathers back into the logo
+    { model: "logo", place: { side: "right", ry: -0.22, fill: 0.95 }, enter: "regather" },
+    LOGO,
+  ],
 };
 
 /** Stage ids per page, top to bottom — the rail and the copy use the same ids. */
 export const STAGES: Record<StoryPageId, readonly string[]> = {
   about: ["intro", "y2013", "y2016", "y2019", "y2022", "vision", "mission", "values", "end"],
   organization: ["structure", "people", "chart", "end"],
-  services: ["end"],
-  achievements: ["end"],
+  services: ["intro", "ticket", "group", "visa", "tour", "corporate", "share", "principles", "process", "strengths", "end"],
+  achievements: ["intro", "awards", "partners-dom", "partners-intl", "closing", "end"],
 };
 
 /** A stepped stage's length in screens (see Frame.steps), for its page's markup; 0 for any other. */
@@ -140,3 +219,19 @@ export const screensOf = (page: StoryPageId, stage: string) => {
   const f = SCRIPTS[page][STAGES[page].indexOf(stage)];
   return f?.steps ? stageScreens(f) : 0;
 };
+
+/**
+ * Where step i (0-based) of a stepped stage is fully shown, in screens from
+ * the stage's top — the middle of its stretch in the scene's timeline
+ * (StoryScene: from 0.13 chapters in to 0.85 chapters before the end).
+ */
+export function stepOffset(page: StoryPageId, stage: string, i: number) {
+  const f = SCRIPTS[page][STAGES[page].indexOf(stage)];
+  if (!f?.steps) return 0;
+  const B = STAGE_SCREENS;
+  const lengths = stepLengths(f);
+  const total = lengths.reduce((a, b) => a + b, 0);
+  const span = stageScreens(f) - 0.98 * B;
+  const before = lengths.slice(0, i).reduce((a, b) => a + b, 0);
+  return 0.13 * B + ((before + lengths[i] / 2) / total) * span;
+}

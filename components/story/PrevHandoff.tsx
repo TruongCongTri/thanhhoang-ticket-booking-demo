@@ -58,6 +58,8 @@ export default function PrevHandoff({
     const bar = barRef.current!;
     // Everything of this page that scrolls: it moves down as the pull reveals the panel.
     const content = () => document.querySelector<HTMLElement>("[data-page]");
+    /** This page's moving parts that are still in the document (the page may already be gone). */
+    const movers = () => [content(), panel].filter((el): el is HTMLElement => !!el && el.isConnected);
     let target = 0;
     const state = { shown: 0 };
     let navigated = false;
@@ -74,12 +76,11 @@ export default function PrevHandoff({
     const render = () => {
       const shown = state.shown;
       const y = Math.min(shown, reveal());
-      const el = content();
       if (shown < 0.5) {
-        gsap.set([el, panel], { clearProps: "transform" });
+        gsap.set(movers(), { clearProps: "transform" });
         gsap.set(bar, { autoAlpha: 0 });
       } else {
-        gsap.set([el, panel], { y });
+        gsap.set(movers(), { y });
         gsap.set(bar, { autoAlpha: Math.min(1, shown / 140) });
       }
       // The particles follow the reveal; the ring and the light, the pull beyond it.
@@ -172,7 +173,8 @@ export default function PrevHandoff({
       window.removeEventListener("touchmove", onTouchMove);
       window.removeEventListener("touchend", onTouchEnd);
       if (!navigated) {
-        gsap.set([content(), panel], { clearProps: "transform" });
+        const left = movers();
+        if (left.length) gsap.set(left, { clearProps: "transform" });
         storyBus.setOverride(null);
       }
     };

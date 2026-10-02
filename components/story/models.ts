@@ -22,10 +22,12 @@ export const TONE = {
   logo: 4, // the logo image's own colour (in `color`)
   muted: 5, // quieter than the rest: maps and ground
   warm: 6, // the logo's orange
+  logoDark: 7, // a logo's dark parts (in `color`): pale on a dark page, their own colour on a light one
 } as const;
 
-type V3 = [number, number, number];
-type Pt = { p: V3; s: number; t?: number; g?: number };
+export type V3 = [number, number, number];
+/** A point: position, size, tone, group — and its own rgb (0..1), for TONE.logo. */
+export type Pt = { p: V3; s: number; t?: number; g?: number; c?: V3 };
 
 /** A hover target: a group's box in model space (centre, half sizes). */
 export type Target = { group: number; c: V3; hw: number; hh: number };
@@ -57,7 +59,7 @@ const TAU = Math.PI * 2;
 /* ---------------------------------------------------------------- */
 
 /** Every point, or an even random thinning of the `rest` to the budget (`keep` always stays). */
-function finish(keep: Pt[], rest: Pt[], budget: number, rand: Rand, look: Model["look"], targets?: Target[]): Model {
+export function finish(keep: Pt[], rest: Pt[], budget: number, rand: Rand, look: Model["look"], targets?: Target[]): Model {
   let pick = rest;
   const room = Math.max(0, budget - keep.length);
   if (rest.length > room) {
@@ -79,8 +81,10 @@ function finish(keep: Pt[], rest: Pt[], budget: number, rand: Rand, look: Model[
     look,
     targets,
   };
-  all.forEach(({ p, s, t = TONE.palette, g = 0 }, i) => {
+  if (all.some((pt) => pt.c)) m.color = new Float32Array(n * 3);
+  all.forEach(({ p, s, t = TONE.palette, g = 0, c }, i) => {
     m.pos.set(p, i * 3);
+    if (c) m.color!.set(c, i * 3);
     m.size[i] = s;
     m.tone[i] = t;
     m.group[i] = g;
@@ -93,7 +97,7 @@ function finish(keep: Pt[], rest: Pt[], budget: number, rand: Rand, look: Model[
 }
 
 /** Points every `step` along a 3D polyline (from a random offset, so neighbours don't line up). */
-function along(line: V3[], step: number, rand: Rand, each: (p: V3) => void) {
+export function along(line: V3[], step: number, rand: Rand, each: (p: V3) => void) {
   let total = 0;
   for (let i = 1; i < line.length; i++) total += dist(line[i - 1], line[i]);
   const n = Math.max(1, Math.floor(total / step));
@@ -116,7 +120,7 @@ function along(line: V3[], step: number, rand: Rand, each: (p: V3) => void) {
 const dist = (a: V3, b: V3) => Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]);
 
 /** A dashed polyline: `on` units drawn, `off` skipped. */
-function dashed(line: V3[], step: number, on: number, off: number, rand: Rand, each: (p: V3) => void) {
+export function dashed(line: V3[], step: number, on: number, off: number, rand: Rand, each: (p: V3) => void) {
   let walked = 0;
   let prev: V3 | null = null;
   along(line, step, rand, (p) => {
@@ -126,20 +130,20 @@ function dashed(line: V3[], step: number, on: number, off: number, rand: Rand, e
   });
 }
 
-function circle(cx: number, cy: number, z: number, r: number, a0 = 0, a1 = TAU, segs = 64): V3[] {
+export function circle(cx: number, cy: number, z: number, r: number, a0 = 0, a1 = TAU, segs = 64): V3[] {
   return Array.from({ length: segs + 1 }, (_, i) => {
     const a = a0 + ((a1 - a0) * i) / segs;
     return [cx + Math.cos(a) * r, cy + Math.sin(a) * r, z] as V3;
   });
 }
 
-const gauss = (rand: Rand) => Math.sqrt(-2 * Math.log(1 - rand())) * Math.cos(TAU * rand());
+export const gauss = (rand: Rand) => Math.sqrt(-2 * Math.log(1 - rand())) * Math.cos(TAU * rand());
 
 /**
  * Text drawn in dots, centred on the origin: `height` is the cap height in
  * model units, `pitch` the dot spacing (also in model units).
  */
-function textDots(text: string, height: number, pitch: number, weight = 700): [number, number][] {
+export function textDots(text: string, height: number, pitch: number, weight = 700): [number, number][] {
   const canvas = document.createElement("canvas");
   const ctx = canvas.getContext("2d", { willReadFrequently: true });
   if (!ctx) return [];
@@ -169,7 +173,7 @@ function textDots(text: string, height: number, pitch: number, weight = 700): [n
 }
 
 /** The home page's 747, posed: scaled, rolled toward the viewer, pitched; then moved. */
-function plane(n: number, rand: Rand, s: number, pitch: number, roll: number, at: V3, size = 1): Pt[] {
+export function plane(n: number, rand: Rand, s: number, pitch: number, roll: number, at: V3, size = 1): Pt[] {
   const shape = airplane(n, rand);
   const m = new THREE.Matrix4().compose(
     new THREE.Vector3(...at),

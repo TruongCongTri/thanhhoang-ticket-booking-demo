@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import Scene from "@/components/scene/Scene";
+import Scene from "@/components/scene/LazyScene";
 import Choreography from "@/components/Choreography";
 import BookingDock from "@/components/BookingDock";
 import Loader from "@/components/Loader";

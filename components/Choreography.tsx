@@ -7,7 +7,7 @@ import { SplitText } from "gsap/SplitText";
 import Lenis from "lenis";
 import { LOAD } from "@/lib/loading";
 import { hasLocale, intlLocale } from "@/lib/i18n";
-import { HALT_SCROLL, isSeamless } from "@/components/story/bus";
+import { HALT_SCROLL, SCROLL_TO, isSeamless } from "@/components/story/bus";
 
 gsap.registerPlugin(ScrollTrigger, SplitText);
 
@@ -16,6 +16,13 @@ gsap.registerPlugin(ScrollTrigger, SplitText);
  * particle logo is seen drawing itself rather than flashing past.
  */
 const MIN_LOADER_MS = 2200;
+
+/**
+ * …and at most this long: on a slow connection the 3D scene (its own chunk,
+ * the biggest download) may still be on its way. The page starts without it
+ * — copy, booking dock and all — and the particles gather in when they land.
+ */
+const MAX_LOADER_MS = 4000;
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -29,7 +36,15 @@ const easeInOutSine = (t: number) => -(Math.cos(Math.PI * t) - 1) / 2;
  * and the stage progress rail. Elements with the value "hero" play when the
  * page starts instead of on scroll.
  */
-export default function Choreography() {
+export default function Choreography({
+  wheel = 0.7,
+  lerp = 0.055,
+}: {
+  /** Scroll per wheel notch (Lenis' wheelMultiplier); touch scales with it. */
+  wheel?: number;
+  /** How quickly the smoothed scroll catches up, per frame (Lenis' lerp). */
+  lerp?: number;
+} = {}) {
   useEffect(() => {
     const html = document.documentElement;
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -40,7 +55,7 @@ export default function Choreography() {
     let lenis: Lenis | null = null;
     const raf = (time: number) => lenis?.raf(time * 1000);
     if (!reduced) {
-      lenis = new Lenis({ lerp: 0.055, wheelMultiplier: 0.7, touchMultiplier: 0.9 });
+      lenis = new Lenis({ lerp, wheelMultiplier: wheel, touchMultiplier: 0.9 * (wheel / 0.7) });
       lenis.on("scroll", ScrollTrigger.update);
       gsap.ticker.add(raf);
       gsap.ticker.lagSmoothing(0);
@@ -52,9 +67,9 @@ export default function Choreography() {
       el.getBoundingClientRect().top + window.scrollY - (parseFloat(getComputedStyle(el).scrollMarginTop) || 0);
     // Jumps take longer the further they go (2–4.5 s), eased in and out, so
     // every morph on the way plays out rather than flashing past.
-    const scrollToY = (y: number, immediate: boolean) => {
+    const scrollToY = (y: number, immediate: boolean, fixed?: number) => {
       const sections = Math.abs(y - window.scrollY) / (1.5 * window.innerHeight);
-      const duration = Math.min(4.5, 2 + sections * 0.6);
+      const duration = fixed ?? Math.min(4.5, 2 + sections * 0.6);
       if (lenis) lenis.scrollTo(y, { immediate, force: true, duration, easing: easeInOutSine });
       else window.scrollTo({ top: y, behavior: immediate ? "instant" : "smooth" });
     };
@@ -71,6 +86,12 @@ export default function Choreography() {
     // A story page hand-off is completing: hold the page where it is.
     const halt = () => lenis?.stop();
     window.addEventListener(HALT_SCROLL, halt);
+    // A click on a step (story pages): glide straight there, briskly.
+    const onScrollTo = (e: Event) => {
+      const { y, duration } = (e as CustomEvent<{ y: number; duration?: number }>).detail;
+      scrollToY(y, false, duration);
+    };
+    window.addEventListener(SCROLL_TO, onScrollTo);
 
     const ctx = gsap.context(() => {
       if (!reduced) {
@@ -191,16 +212,19 @@ export default function Choreography() {
     };
     if (html.hasAttribute("data-scene-ready")) begin();
     else window.addEventListener(LOAD.ready, begin, { once: true });
+    const giveUp = window.setTimeout(begin, Math.max(0, MAX_LOADER_MS - performance.now()));
 
     return () => {
       window.removeEventListener(LOAD.ready, begin);
+      window.clearTimeout(giveUp);
       document.removeEventListener("click", onAnchorClick);
       window.removeEventListener(HALT_SCROLL, halt);
+      window.removeEventListener(SCROLL_TO, onScrollTo);
       ctx.revert();
       gsap.ticker.remove(raf);
       lenis?.destroy();
     };
-  }, []);
+  }, [wheel, lerp]);
 
   return null;
 }

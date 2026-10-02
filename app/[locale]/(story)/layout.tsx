@@ -4,7 +4,7 @@ import ContactButtons from "@/components/ContactButtons";
 import Toaster from "@/components/Toaster";
 import Header from "@/components/site/Header";
 import StoryLinks from "@/components/story/StoryLinks";
-import StoryScene from "@/components/story/StoryScene";
+import StoryScene from "@/components/story/LazyStoryScene";
 import { hasLocale } from "@/lib/i18n";
 import { pagePath } from "@/lib/pages";
 import { getDictionary } from "../dictionaries";

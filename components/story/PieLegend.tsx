@@ -1,7 +1,7 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-import { storyBus } from "./bus";
+import { jumpToStep, storyBus } from "./bus";
 
 type Share = { label: string; share: string };
 
@@ -26,16 +26,19 @@ export default function PieLegend({ title, items }: { title: string; items: Shar
         {items.map((s, i) => {
           const on = lit === i + 1;
           return (
-            <li
-              key={s.label}
-              aria-current={on ? "true" : undefined}
-              className={`border-t-2 pt-3 transition-[opacity,border-color] duration-500 ${on ? "border-saffron" : "border-white/15"} ${lit && !on ? "opacity-50" : ""}`}
-            >
+            <li key={s.label}>
+              <button
+                type="button"
+                aria-current={on ? "true" : undefined}
+                onClick={() => jumpToStep("organization", "people", i)}
+                className={`w-full cursor-pointer text-left hover:border-saffron border-t-2 pt-3 transition-[opacity,border-color] duration-500 ${on ? "border-saffron" : "border-white/15"} ${lit && !on ? "opacity-50" : ""}`}
+              >
               <span className={`t-heading block tabular-nums transition-colors duration-500 ${on ? "text-saffron" : ""}`}>{s.share}</span>
               <span className="t-caption mt-1 flex items-center gap-2 text-[13px] text-mist">
                 <span aria-hidden className={`h-2.5 w-2.5 shrink-0 rounded-[3px] ${SWATCH[i]}`} />
                 {s.label}
               </span>
+              </button>
             </li>
           );
         })}

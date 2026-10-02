@@ -16,7 +16,7 @@ export const SLUGS: Record<StoryPageId, Record<Locale, string>> = {
 };
 
 /** Pages that are published; the others show in the menu as coming soon. */
-export const BUILT: readonly StoryPageId[] = ["about", "organization"];
+export const BUILT: readonly StoryPageId[] = ["about", "organization", "services", "achievements"];
 
 export const isBuilt = (id: StoryPageId) => BUILT.includes(id);
 

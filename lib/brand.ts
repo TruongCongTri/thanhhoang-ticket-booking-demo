@@ -1,6 +1,6 @@
 /** The company this site showcases. */
 export const BRAND = {
-  name: "Thanh Hoang",
+  name: "Thành Hoàng",
   /** Full-colour logo on a transparent background (mark above the wordmark). */
   logo: { src: "/brand/thanh-hoang-logo.png", width: 2362, height: 991 },
 };

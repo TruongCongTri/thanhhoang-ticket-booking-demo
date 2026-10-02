@@ -7,7 +7,7 @@ import NextHandoff from "./NextHandoff";
 import PrevHandoff from "./PrevHandoff";
 import StoryScript from "./StoryScript";
 import { PageHero, finaleLine } from "./screens";
-import { STAGES } from "./scripts";
+import { STAGE_SCREENS, STAGES } from "./scripts";
 import { BRAND } from "@/lib/brand";
 import { fill, type Dictionary, type Locale } from "@/lib/i18n";
 import { neighbours, pagePath, type StoryPageId } from "@/lib/pages";
@@ -35,9 +35,10 @@ export default function StoryPage({
   const stages = STAGES[id];
   const end = stages[stages.length - 1];
   return (
-    <>
+    <div style={{ "--stage": STAGE_SCREENS } as React.CSSProperties}>
       <StoryScript page={id} />
-      <Choreography />
+      {/* quicker than the home page: these pages carry a lot more copy */}
+      <Choreography wheel={1} lerp={0.085} />
       <Loader label={fill(t.loading, { brand: BRAND.name })} />
       <Rail label={t.rail.label} stages={stages.map((s) => ({ id: s, label: rail[s] }))} />
       {prev && (
@@ -72,6 +73,6 @@ export default function StoryPage({
           </NextHandoff>
         )}
       </div>
-    </>
+    </div>
   );
 }

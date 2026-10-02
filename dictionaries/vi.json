@@ -1,7 +1,7 @@
 {
   "meta": {
-    "title": "{brand} — Mọi hãng bay Việt Nam, một lần tìm",
-    "description": "{brand} kết nối trực tiếp với mọi hãng hàng không Việt Nam. So sánh giá vé theo thời gian thực của Vietnam Airlines, Vietjet, Bamboo, Vietravel, Pacific và Sun PhuQuoc Airways — nội địa lẫn quốc tế — và đặt vé trong vài giây."
+    "title": "Vé máy bay giá rẻ mọi hãng bay Việt Nam | Thành Hoàng",
+    "description": "Đặt vé máy bay nội địa & quốc tế giá tốt: Vietnam Airlines, Vietjet, Bamboo, Vietravel… So sánh giá theo thời gian thực, xuất vé ngay. Hotline 0938 75 4689."
   },
   "loading": "Đang tải {brand}…",
   "archipelagos": [
@@ -31,7 +31,7 @@
       "routes": "Chuyến bay nội địa",
       "international": "Chuyến bay quốc tế",
       "ticket": "Lên máy bay",
-      "thanh-hoang": "Thanh Hoang"
+      "thanh-hoang": "Thành Hoàng"
     }
   },
   "hero": {
@@ -261,7 +261,7 @@
     "booked": "Đã đặt · {code}",
     "bookedBody": "{route} · {date}, {time} · {flight}. Đã lưu theo số {phone}.",
     "demoTitle": "Đây là đặt chỗ demo",
-    "demoBody": "Không có vé nào được xuất và không có khoản tiền nào bị trừ. Website này là bản demo portfolio, không thuộc Thanh Hoang."
+    "demoBody": "Không có vé nào được xuất và không có khoản tiền nào bị trừ. Website này là bản demo portfolio, không thuộc Thành Hoàng."
   },
   "trips": {
     "title": "Chuyến đi của tôi",
@@ -317,7 +317,7 @@
     "resend": "Gửi lại mã",
     "resendIn": "Gửi lại sau {s}s",
     "changeNumber": "Đổi số",
-    "demoSms": "Mã Thanh Hoang của bạn: {code}",
+    "demoSms": "Mã Thành Hoàng của bạn: {code}",
     "demoSmsBody": "SMS mô phỏng tới {phone} — bản thật sẽ gửi qua tin nhắn.",
     "forPhone": "Chuyến đi của số {phone}",
     "verified": "Đã xác thực",
@@ -348,16 +348,16 @@
   "disclaimer": {
     "title": "Tuyên bố miễn trừ trách nhiệm",
     "body": [
-      "Đây là website demo. Tôi xây dựng nó để thể hiện năng lực của một lập trình viên end-to-end, từ tương tác 3D, thiết kế đến quy trình đặt vé, thanh toán và xuất vé, cũng như cách tôi có thể đóng góp cho Thanh Hoang.",
-      "Website không thuộc sở hữu hay được Thanh Hoang bảo trợ. Tôi không có bản quyền đối với tên, logo hay nội dung của công ty. Không có đặt chỗ hay thanh toán thật nào được thực hiện; dữ liệu chuyến bay là mô phỏng.",
-      "Nếu bạn là đại diện của Thanh Hoang và muốn chỉnh sửa hoặc gỡ bỏ bất kỳ nội dung nào, vui lòng liên hệ, tôi sẽ xử lý ngay."
+      "Đây là website demo. Tôi xây dựng nó để thể hiện năng lực của một lập trình viên end-to-end, từ tương tác 3D, thiết kế đến quy trình đặt vé, thanh toán và xuất vé, cũng như cách tôi có thể đóng góp cho Thành Hoàng.",
+      "Website không thuộc sở hữu hay được Thành Hoàng bảo trợ. Tôi không có bản quyền đối với tên, logo hay nội dung của công ty. Không có đặt chỗ hay thanh toán thật nào được thực hiện; dữ liệu chuyến bay là mô phỏng.",
+      "Nếu bạn là đại diện của Thành Hoàng và muốn chỉnh sửa hoặc gỡ bỏ bất kỳ nội dung nào, vui lòng liên hệ, tôi sẽ xử lý ngay."
     ],
     "contact": "Liên hệ tôi",
     "close": "Đóng"
   },
   "pages": {
     "menu": "Giới thiệu",
-    "menuLabel": "Các trang giới thiệu Thanh Hoang",
+    "menuLabel": "Các trang giới thiệu Thành Hoàng",
     "soon": "Sắp ra mắt",
     "flights": "Vé máy bay",
     "names": {
@@ -372,14 +372,14 @@
     "scrollPrev": "Cuộn lên để về {page}"
   },
   "homeAbout": {
-    "label": "Về Thanh Hoang",
+    "label": "Về Thành Hoàng",
     "title": "Hơn mười năm đồng hành cùng từng chuyến đi.",
     "cta": "Câu chuyện của chúng tôi"
   },
   "about": {
     "meta": {
-      "title": "Giới thiệu — {brand}",
-      "description": "Lịch sử hình thành, tầm nhìn, sứ mệnh và giá trị cốt lõi của Du lịch Thanh Hoàng, đồng hành cùng khách hàng từ năm 2013."
+      "title": "Giới thiệu Thành Hoàng – Đại lý vé máy bay từ 2013",
+      "description": "Du lịch Thành Hoàng: đại lý vé máy bay chính thức từ 2013. Lịch sử hình thành, tầm nhìn, sứ mệnh và 5 giá trị cốt lõi: uy tín, chuyên nghiệp, tiện lợi, minh bạch, tận tâm."
     },
     "rail": {
       "intro": "Lời cảm ơn",
@@ -390,13 +390,13 @@
       "vision": "Tầm nhìn",
       "mission": "Sứ mệnh",
       "values": "Giá trị cốt lõi",
-      "end": "Thanh Hoang"
+      "end": "Thành Hoàng"
     },
     "hero": {
-      "label": "Du lịch Thanh Hoàng · Từ 2013",
+      "label": "Du lịch Thành Hoàng · Từ 2013",
       "title": "Đồng hành từng chuyến đi.",
-      "body": "Cảm ơn Quý vị đã tin tưởng và đồng hành cùng chúng tôi từ năm 2013 đến nay. Với tinh thần bảo trợ, phúc lành và gắn kết, Thanh Hoàng cam kết mang đến dịch vụ uy tín, chuyên nghiệp và tận tâm.",
-      "company": "Công ty TNHH Thương Mại Và Phát Triển Du Lịch Thanh Hoàng",
+      "body": "Cảm ơn Quý vị đã tin tưởng và đồng hành cùng chúng tôi từ năm 2013 đến nay. Với tinh thần bảo trợ, phúc lành và gắn kết, Thành Hoàng cam kết mang đến dịch vụ uy tín, chuyên nghiệp và tận tâm.",
+      "company": "Công ty TNHH Thương Mại Và Phát Triển Du Lịch Thành Hoàng",
       "taxLabel": "Mã số thuế",
       "tax": "0312171360"
     },
@@ -407,7 +407,7 @@
         {
           "years": "2013 – 2015",
           "title": "Khởi nguồn",
-          "body": "Thành lập năm 2013 với sứ mệnh mang đến trải nghiệm đặt vé máy bay thuận tiện, minh bạch cho người Việt. Từ một văn phòng nhỏ tại TP.HCM, Thanh Hoàng nhanh chóng trở thành đại lý chính thức của các hãng hàng không nội địa lớn."
+          "body": "Thành lập năm 2013 với sứ mệnh mang đến trải nghiệm đặt vé máy bay thuận tiện, minh bạch cho người Việt. Từ một văn phòng nhỏ tại TP.HCM, Thành Hoàng nhanh chóng trở thành đại lý chính thức của các hãng hàng không nội địa lớn."
         },
         {
           "years": "2016 – 2018",
@@ -417,19 +417,19 @@
         {
           "years": "2019 – 2021",
           "title": "Số hóa toàn diện",
-          "body": "Đón đầu du lịch 4.0, Thanh Hoàng triển khai nền tảng AGS99 dành riêng cho đại lý vé máy bay, cùng các dịch vụ hỗ trợ visa, đặt phòng, bảo hiểm du lịch và chăm sóc khách hàng 24/7."
+          "body": "Đón đầu du lịch 4.0, Thành Hoàng triển khai nền tảng AGS99 dành riêng cho đại lý vé máy bay, cùng các dịch vụ hỗ trợ visa, đặt phòng, bảo hiểm du lịch và chăm sóc khách hàng 24/7."
         },
         {
           "years": "2022 – nay",
           "title": "Tăng tốc bền vững",
-          "body": "Không chỉ là nhà cung cấp vé máy bay, Thanh Hoàng trở thành cầu nối du lịch toàn diện, kết nối hàng triệu hành khách. Hệ thống THcent và chính sách ưu đãi đại lý mở rộng mạng lưới kinh doanh khắp cả nước."
+          "body": "Không chỉ là nhà cung cấp vé máy bay, Thành Hoàng trở thành cầu nối du lịch toàn diện, kết nối hàng triệu hành khách. Hệ thống THcent và chính sách ưu đãi đại lý mở rộng mạng lưới kinh doanh khắp cả nước."
         }
       ]
     },
     "vision": {
       "label": "Tầm nhìn",
       "title": "Đơn vị vé máy bay hàng đầu Việt Nam.",
-      "body": "Thanh Hoàng không ngừng đổi mới và ứng dụng công nghệ để mang lại trải nghiệm đặt vé nhanh chóng, an toàn và tối ưu chi phí. Chúng tôi không chỉ bán vé, mà còn tạo ra một hành trình khởi đầu suôn sẻ, đáng tin cậy cho mọi chuyến đi — dù là công tác, thăm thân hay du lịch."
+      "body": "Thành Hoàng không ngừng đổi mới và ứng dụng công nghệ để mang lại trải nghiệm đặt vé nhanh chóng, an toàn và tối ưu chi phí. Chúng tôi không chỉ bán vé, mà còn tạo ra một hành trình khởi đầu suôn sẻ, đáng tin cậy cho mọi chuyến đi — dù là công tác, thăm thân hay du lịch."
     },
     "mission": {
       "label": "Sứ mệnh",
@@ -468,14 +468,14 @@
   },
   "organization": {
     "meta": {
-      "title": "Tổ chức — {brand}",
-      "description": "Cơ cấu nhân sự và sơ đồ tổ chức của Du lịch Thanh Hoàng: ban giám đốc, các phòng ban và đội ngũ cộng tác viên."
+      "title": "Cơ cấu tổ chức & đội ngũ | Thành Hoàng",
+      "description": "Sơ đồ tổ chức và năng lực nhân sự của Du lịch Thành Hoàng: ban giám đốc, 5 phòng ban và mạng lưới cộng tác viên, phục vụ khách hàng 24/7."
     },
     "rail": {
       "structure": "Cơ cấu tổ chức",
       "people": "Năng lực nhân sự",
       "chart": "Sơ đồ tổ chức",
-      "end": "Thanh Hoang"
+      "end": "Thành Hoàng"
     },
     "hero": {
       "label": "Cơ cấu tổ chức",
@@ -620,7 +620,262 @@
       }
     },
     "finale": {
-      "title": "Sự kết hợp giúp Thanh Hoàng không ngừng phát triển."
+      "title": "Sự kết hợp giúp Thành Hoàng không ngừng phát triển."
+    }
+  },
+  "services": {
+    "meta": {
+      "title": "Dịch vụ vé máy bay, đặt vé đoàn, visa | Thành Hoàng",
+      "description": "Vé máy bay nội địa & quốc tế, đặt vé đoàn giảm đến 20%, visa hơn 50 quốc gia, bảo hiểm du lịch, khách sạn và gói vé doanh nghiệp tại Thành Hoàng."
+    },
+    "rail": {
+      "intro": "Dịch vụ & Vận hành",
+      "ticket": "Vé máy bay",
+      "group": "Đặt vé đoàn",
+      "visa": "Visa & bảo hiểm",
+      "tour": "Khách sạn, thuê xe",
+      "corporate": "Doanh nghiệp",
+      "share": "Tỷ lệ lựa chọn",
+      "principles": "Nguyên tắc hoạt động",
+      "process": "Quy trình hoạt động",
+      "strengths": "Thế mạnh cạnh tranh",
+      "end": "Thành Hoàng"
+    },
+    "hero": {
+      "label": "Dịch vụ & Vận hành",
+      "title": "Trọn vẹn mọi hành trình.",
+      "body": "Với định hướng khách hàng làm trọng tâm, Thành Hoàng xây dựng hệ sinh thái dịch vụ tối ưu, đồng hành cùng mọi hành trình — không chỉ đáp ứng nhu cầu trước mắt mà còn hướng đến trải nghiệm lâu dài, với sự thuận tiện, minh bạch và tin cậy."
+    },
+    "featured": {
+      "label": "Dịch vụ tiêu biểu",
+      "items": [
+        {
+          "name": "Vé máy bay nội địa & quốc tế",
+          "body": "Cung cấp vé cho hàng trăm tuyến bay, liên kết với nhiều hãng hàng không uy tín, đảm bảo giá tốt và hỗ trợ linh hoạt."
+        },
+        {
+          "name": "Đặt vé đoàn",
+          "body": "Giảm giá lên đến 20% cho nhóm khách từ 10 người trở lên, phù hợp với các chuyến công tác, du lịch tập thể hoặc sự kiện."
+        },
+        {
+          "name": "Visa & bảo hiểm du lịch",
+          "body": "Hỗ trợ làm visa đi hơn 50 quốc gia, kèm theo các gói bảo hiểm du lịch đảm bảo an toàn trong suốt hành trình."
+        },
+        {
+          "name": "Đặt phòng khách sạn, thuê xe",
+          "body": "Hợp tác với hàng nghìn khách sạn và nhà xe, giúp khách hàng chủ động đặt phòng và phương tiện di chuyển với giá cạnh tranh."
+        },
+        {
+          "name": "Gói vé doanh nghiệp",
+          "body": "Thiết kế riêng cho doanh nghiệp với ưu đãi đổi vé miễn phí, thanh toán công nợ, hỗ trợ 24/7 và chính sách chăm sóc riêng."
+        }
+      ]
+    },
+    "share": {
+      "label": "Tỷ lệ lựa chọn",
+      "title": "Khách hàng chọn gì ở Thành Hoàng.",
+      "note": "Tỷ lệ khách hàng lựa chọn từng dịch vụ của công ty",
+      "items": [
+        {
+          "figure": "45%",
+          "name": "Vé máy bay nội địa",
+          "body": "Gần một nửa khách hàng đến với Thành Hoàng cho những chuyến bay trong nước."
+        },
+        {
+          "figure": "30%",
+          "name": "Vé máy bay quốc tế",
+          "body": "Gần một phần ba chọn Thành Hoàng cho các hành trình ra thế giới."
+        },
+        {
+          "figure": "10%",
+          "name": "Visa & bảo hiểm du lịch",
+          "body": "Thủ tục và an tâm cho chuyến đi, trọn gói cùng tấm vé."
+        },
+        {
+          "figure": "10%",
+          "name": "Đặt vé đoàn",
+          "body": "Những chuyến công tác, du lịch tập thể và sự kiện."
+        },
+        {
+          "figure": "5%",
+          "name": "Dịch vụ khác",
+          "body": "Khách sạn, thuê xe và các nhu cầu đi kèm."
+        }
+      ]
+    },
+    "principles": {
+      "label": "Nguyên tắc hoạt động",
+      "title": "Sáu nguyên tắc, một cam kết.",
+      "items": [
+        {
+          "name": "Minh bạch là nền tảng",
+          "body": "Từ chính sách giá, quy trình đặt vé, thanh toán đến các quyền lợi đi kèm — mọi thông tin đều rõ ràng, chính xác và không có chi phí ẩn."
+        },
+        {
+          "name": "Sẵn sàng đồng hành 24/7",
+          "body": "Hệ thống chăm sóc khách hàng không ngừng nghỉ, kể cả ngoài giờ hành chính hay ngày lễ. Mỗi yêu cầu đều được lắng nghe và giải quyết tận cùng."
+        },
+        {
+          "name": "Giá vé tối ưu nhờ công nghệ",
+          "body": "Công nghệ AI cập nhật giá vé theo thời gian thực và dự đoán xu hướng giá, để khách hàng luôn có mức giá cạnh tranh nhất."
+        },
+        {
+          "name": "An toàn thông tin – an tâm sử dụng",
+          "body": "Dữ liệu cá nhân, lịch sử giao dịch và thông tin thanh toán đều được mã hóa và lưu trữ theo chuẩn bảo mật quốc tế."
+        },
+        {
+          "name": "Phục vụ tận tâm, hỗ trợ tận tình",
+          "body": "Mỗi khách hàng là người bạn đồng hành: từ việc đổi vé đến hỗ trợ check-in, đội ngũ luôn thân thiện và chuyên nghiệp."
+        },
+        {
+          "name": "Công bằng – nền tảng bền vững",
+          "body": "Chính sách rõ ràng, minh bạch, cùng chia sẻ cơ hội, trách nhiệm và lợi ích với nhân sự, đại lý, khách hàng và đối tác."
+        }
+      ]
+    },
+    "process": {
+      "label": "Quy trình hoạt động",
+      "title": "Hiệu quả bắt đầu từ quy trình.",
+      "quote": "Rõ ràng, nhất quán, tối ưu.",
+      "items": [
+        {
+          "name": "Tiếp nhận và tư vấn nhu cầu",
+          "body": "Lắng nghe và phân tích nhu cầu di chuyển — thời gian, địa điểm, ngân sách, yêu cầu đặc biệt — để tư vấn hành trình phù hợp nhất, tối ưu chi phí và trải nghiệm."
+        },
+        {
+          "name": "Tìm kiếm và đặt vé linh hoạt",
+          "body": "Hệ thống so sánh giá và kiểm tra lịch trình theo thời gian thực. Đặt vé nhanh chóng, minh bạch qua nhiều kênh: online, điện thoại, trực tiếp hoặc qua đại lý."
+        },
+        {
+          "name": "Xử lý giao dịch và hỗ trợ sau bán",
+          "body": "Thanh toán an toàn, linh hoạt. Sau khi xuất vé, chúng tôi tiếp tục hỗ trợ thay đổi thông tin, hủy vé, hoàn vé và mọi phát sinh trong hành trình."
+        },
+        {
+          "name": "Chăm sóc và duy trì kết nối",
+          "body": "Không dừng ở việc hoàn thành đơn hàng: cập nhật ưu đãi, thông tin bay, và với doanh nghiệp, đại lý — quản lý vé, công nợ và chính sách riêng."
+        }
+      ]
+    },
+    "strengths": {
+      "label": "Thế mạnh cạnh tranh",
+      "title": "Nhanh, hiện đại, tận tâm.",
+      "items": [
+        {
+          "name": "Đặt vé thông minh",
+          "body": "Cập nhật giá vé theo thời gian thực, giúp khách hàng tiếp cận mức giá tối ưu và đơn giản hóa quá trình đặt vé."
+        },
+        {
+          "name": "Hỗ trợ 24/7",
+          "body": "Trung tâm hỗ trợ khách hàng hoạt động suốt ngày đêm, sẵn sàng hỗ trợ trước, trong và sau hành trình."
+        },
+        {
+          "name": "Trợ lý AI – AGS99",
+          "body": "Trợ lý đại lý ứng dụng công nghệ 4.0, hỗ trợ quản lý đơn hàng, chăm sóc khách hàng và tối ưu doanh thu."
+        },
+        {
+          "name": "Tích điểm, hoàn tiền",
+          "body": "Chương trình khách hàng thân thiết: quy đổi điểm thưởng thành ưu đãi khi mua vé và dịch vụ du lịch."
+        },
+        {
+          "name": "Hệ thống đối tác",
+          "body": "Liên kết với nhiều hãng hàng không nội địa và quốc tế, mang lại sự đa dạng và giá cả cạnh tranh."
+        }
+      ]
+    },
+    "finale": {
+      "title": "Dịch vụ nhanh chóng, công nghệ hiện đại, hỗ trợ tận tâm."
+    }
+  },
+  "achievements": {
+    "meta": {
+      "title": "Thành tựu & đối tác hàng không | Thành Hoàng",
+      "description": "Giải thưởng từ Vietnam Airlines, Vietjet, Bamboo Airways, Vietravel Airlines và IATA; đối tác của 10 hãng bay trong nước và quốc tế."
+    },
+    "rail": {
+      "intro": "Thành tựu & Đối tác",
+      "awards": "Thành tựu đạt được",
+      "partners-dom": "Đối tác trong nước",
+      "partners-intl": "Đối tác quốc tế",
+      "closing": "Lời kết",
+      "end": "Thành Hoàng"
+    },
+    "hero": {
+      "label": "Thành tựu & Đối tác",
+      "title": "Một hành trình bền bỉ.",
+      "body": "Thành công hôm nay là kết quả của một hành trình bền bỉ và niềm tin mãnh liệt vào giá trị của sự khác biệt. Chúng tôi không ngừng hoàn thiện mình, mở rộng hệ sinh thái đối tác và nâng tầm trải nghiệm khách hàng trong từng dịch vụ."
+    },
+    "awards": {
+      "label": "Thành tựu đạt được",
+      "title": "Niềm tin được vinh danh.",
+      "counters": {
+        "years": "năm đồng hành",
+        "awards": "giải thưởng & chứng nhận",
+        "airlines": "hãng bay đối tác",
+        "customers": "lượt khách hàng"
+      },
+      "timeline": [
+        {
+          "years": "2018 – 2021",
+          "items": [
+            "Cúp vinh danh Vietjet Air Silver Star 2018",
+            "Cúp vinh danh Đại lý nổi bật 2020 của Vietjet Air",
+            "Cúp vinh danh Đại lý nổi bật 2021 của Vietravel Airlines"
+          ]
+        },
+        {
+          "years": "2022",
+          "items": [
+            "Cúp vinh danh Sapphire Award 2022 của Vietjet Air",
+            "Cúp vinh danh Sapphire 2022 của Vietjet Air",
+            "Cúp vinh danh Đại lý xuất sắc năm 2022 của Vietravel Airlines"
+          ]
+        },
+        {
+          "years": "2023",
+          "items": [
+            "Giấy chứng nhận đại lý được ủy quyền của Vietravel Airlines",
+            "Cúp vinh danh Digital Ambassador của Vietjet Air"
+          ]
+        },
+        {
+          "years": "2024",
+          "items": [
+            "Đại lý xuất sắc Titan Agent tại thị trường Việt Nam — Vietnam Airlines",
+            "Top Đại lý xuất sắc nhất năm 2024 — Bamboo Airways",
+            "Cúp vinh danh Sapphire Award — Vietjet Air",
+            "Cúp vàng đối tác có thành tích vượt trội — TravelPort"
+          ]
+        },
+        {
+          "years": "2025",
+          "items": [
+            "Đại lý đủ điều kiện quảng bá và bán vé vận chuyển hành khách hàng không quốc tế — IATA, Hiệp hội Vận tải Hàng không Quốc tế"
+          ]
+        }
+      ]
+    },
+    "partners": {
+      "label": "Đối tác tiêu biểu",
+      "domestic": {
+        "title": "Hãng hàng không trong nước",
+        "body": "Đại lý chính thức của các hãng bay Việt Nam: giá tốt, chỗ thật, xuất vé ngay."
+      },
+      "international": {
+        "title": "Hãng hàng không nước ngoài",
+        "body": "Kết nối với các hãng bay quốc tế uy tín, đưa khách hàng tới châu Á và xa hơn."
+      }
+    },
+    "closing": {
+      "label": "Lời kết",
+      "title": "Mỗi chuyến bay là một câu chuyện.",
+      "body": "Mỗi hành trình là một ước mơ đang được viết tiếp. Từng tấm vé được đặt là một cam kết về chất lượng, một lời hứa về trải nghiệm trọn vẹn và an tâm. Bởi với chúng tôi, sự hài lòng của khách hàng không phải là đích đến — mà là điểm khởi đầu cho những bước tiến xa hơn.",
+      "thanks": "Xin cảm ơn!",
+      "book": "Đặt vé",
+      "call": "Gọi {phone}",
+      "zalo": "Chat Zalo"
+    },
+    "finale": {
+      "title": "Sự hài lòng của khách hàng là điểm khởi đầu cho những bước tiến xa hơn."
     }
   }
 }

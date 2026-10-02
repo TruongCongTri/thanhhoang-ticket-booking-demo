@@ -2,6 +2,7 @@
 
 import { useSyncExternalStore } from "react";
 import { storyBus } from "./bus";
+import StepTicks from "./StepTicks";
 
 type Level = { label: string; title: string; body: string };
 
@@ -20,15 +21,7 @@ export default function ChartSteps({ levels, hint }: { levels: readonly Level[];
   const current = Math.max(1, Math.min(levels.length, step)) - 1;
   return (
     <div>
-      {/* where we are: one tick per level */}
-      <div aria-hidden className="mb-7 flex max-w-[420px] gap-2">
-        {levels.map((l, i) => (
-          <span
-            key={l.label}
-            className={`h-1 flex-1 rounded-full transition-colors duration-500 ${i === current ? "bg-azure" : i < current ? "bg-white/35" : "bg-white/12"}`}
-          />
-        ))}
-      </div>
+      <StepTicks labels={levels.map((l) => l.title)} current={current} target={{ page: "organization", stage: "chart" }} className="mb-7 max-w-[420px]" />
       <ol className="grid">
         {levels.map((l, i) => (
           <li
@@ -36,9 +29,9 @@ export default function ChartSteps({ levels, hint }: { levels: readonly Level[];
             aria-current={i === current ? "step" : undefined}
             className={`value-item col-start-1 row-start-1 ${i === current ? "value-item-on" : ""}`}
           >
-            <p className="t-label mb-6">{l.label}</p>
-            <h2 className="t-heading">{l.title}</h2>
-            <p className="t-body mt-6 max-w-[420px] text-mist">
+            <p className="t-label mb-6 max-md:mb-3">{l.label}</p>
+            <h2 className="t-heading max-md:text-[28px]">{l.title}</h2>
+            <p className="t-body mt-6 max-w-[420px] text-mist max-md:mt-4 max-md:text-[15px]">
               {l.body}
               {i === levels.length - 1 && <span className="mt-3 block text-ash md:hidden">{hint}</span>}
             </p>

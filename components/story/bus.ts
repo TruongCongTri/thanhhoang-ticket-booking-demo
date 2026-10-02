@@ -1,4 +1,5 @@
 import type { StoryPageId } from "@/lib/pages";
+import { stepOffset } from "./scripts";
 
 /**
  * Shared state between the story pages and the particle scene, which lives in
@@ -114,3 +115,17 @@ export const isSeamless = () => performance.now() - seamlessAt < 2000;
 /** Asks the page's smooth scrolling (Choreography) to stop: a hand-off is completing. */
 export const HALT_SCROLL = "thanhhoang:halt-scroll";
 export const haltScroll = () => window.dispatchEvent(new Event(HALT_SCROLL));
+
+/** Asks Choreography to glide to a scroll position (detail: { y, duration? }). */
+export const SCROLL_TO = "thanhhoang:scroll-to";
+
+/**
+ * Scrolls to step i of a stepped stage — the click alternative to scrolling
+ * through it: the scene plays the morph to that step on the way.
+ */
+export function jumpToStep(page: StoryPageId, stage: string, i: number) {
+  const el = document.getElementById(stage);
+  if (!el) return;
+  const y = el.getBoundingClientRect().top + window.scrollY + stepOffset(page, stage, i) * window.innerHeight;
+  window.dispatchEvent(new CustomEvent(SCROLL_TO, { detail: { y, duration: 1.1 } }));
+}

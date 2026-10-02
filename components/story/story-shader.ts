@@ -21,6 +21,7 @@ uniform vec4 uLookA;       // particle size, depth strength, radius (view units)
 uniform vec4 uLookB;
 uniform vec2 uPulse;       // groups pulse, per frame
 uniform vec2 uReveal;      // per frame: groups 1…n have gathered in, one after another (−1: all shown)
+uniform vec2 uSolo;        // per frame: 1 = only the lit group is shown (one partner logo at a time)
 uniform float uTime;
 uniform float uAppear;
 uniform float uLoadProgress;
@@ -78,7 +79,8 @@ vec3 toneColor(float tone, vec3 col) {
   if (tone < 3.5) return mix(vec3(0.9, 0.94, 1.0), vec3(0.2, 0.44, 0.7), uTheme);
   if (tone < 4.5) return brandColor(col);
   if (tone < 5.5) return mix(aColorRand.rgb, vec3(0.45, 0.58, 0.76), 0.5) * 0.8;
-  return vec3(0.94, 0.48, 0.19);
+  if (tone < 6.5) return vec3(0.94, 0.48, 0.19);
+  return mix(vec3(0.9, 0.94, 1.0), brandColor(col), uTheme);
 }
 
 float depthAt(vec3 p, mat4 mv, float r) {
@@ -86,6 +88,10 @@ float depthAt(vec3 p, mat4 mv, float r) {
 }
 float tierOf(float d, float k) { return mix(1.0, mix(0.12, 1.0, smoothstep(-1.0, 1.0, d)), k); }
 float fadeOf(float d, float k) { return mix(1.0, mix(0.14, 1.0, smoothstep(-1.0, 0.5, d)), k); }
+
+// Solo frames: the lit value with a plateau at each whole group, so one logo
+// holds still for most of its step and the next takes over in between.
+float soloAt(float l) { return floor(l) + smoothstep(0.4, 0.6, fract(l)); }
 
 // How lit a particle of group g is, with group lit lit (0 = none).
 float litOf(float g, float lit) {
@@ -106,6 +112,11 @@ void main() {
   // waits in the sky as a star, then gathers into place.
   float visA = uReveal.x < 0.0 || aInfoA.w < 0.5 ? 1.0 : ease(clamp(uReveal.x - aInfoA.w + 1.0, 0.0, 1.0));
   float visB = uReveal.y < 0.0 || aInfoB.w < 0.5 ? 1.0 : ease(clamp(uReveal.y - aInfoB.w + 1.0, 0.0, 1.0));
+  // Solo: as the lit value moves on from one group to the next, the one
+  // leaving dissolves into the sky and the next gathers in its place.
+  // Each logo holds for most of its step; the hand-over happens in the middle fifth.
+  if (uSolo.x > 0.5 && aInfoA.w > 0.5) visA *= 1.0 - smoothstep(0.25, 0.75, abs(aInfoA.w - soloAt(uLookA.w)));
+  if (uSolo.y > 0.5 && aInfoB.w > 0.5) visB *= 1.0 - smoothstep(0.25, 0.75, abs(aInfoB.w - soloAt(uLookB.w)));
   A = mix(skyV, A, visA);
   B = mix(skyV, B, visB);
 
@@ -162,8 +173,9 @@ void main() {
   // lit: the logo's yellow — on a light page fully, so it deepens to amber rather than olive
   vec3 lit = mix(vec3(1.0, 0.78, 0.3), vec3(1.0, 0.62, 0.12), uTheme);
   float litMix = mix(0.6, 0.92, uTheme);
-  vec3 colA = actA > 0.5 ? mix(toneColor(aInfoA.z, aColA), lit, litMix * litA) : aColorRand.rgb;
-  vec3 colB = actB > 0.5 ? mix(toneColor(aInfoB.z, aColB), lit, litMix * litB) : aColorRand.rgb;
+  // (a solo frame's logo is the highlight itself: it keeps its own colours)
+  vec3 colA = actA > 0.5 ? mix(toneColor(aInfoA.z, aColA), lit, litMix * litA * (1.0 - uSolo.x)) : aColorRand.rgb;
+  vec3 colB = actB > 0.5 ? mix(toneColor(aInfoB.z, aColB), lit, litMix * litB * (1.0 - uSolo.y)) : aColorRand.rgb;
   vec3 color = mix(mix(aColorRand.rgb, colA, visA), mix(aColorRand.rgb, colB, visB), t);
   float glowAmt = mix(litA * visA, litB * visB, t) * 0.55;
 

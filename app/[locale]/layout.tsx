@@ -1,9 +1,11 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import { notFound } from "next/navigation";
-import { BRAND } from "@/lib/brand";
-import { LOCALES, fill, hasLocale } from "@/lib/i18n";
+import { LOCALES, hasLocale } from "@/lib/i18n";
 import { THEME_SCRIPT } from "@/lib/theme";
+import { jsonLdScript, organizationJsonLd, pageMetadata } from "@/lib/seo";
+import { SITE_URL } from "@/lib/site";
+import BootLogo from "@/components/BootLogo";
 import { getDictionary } from "./dictionaries";
 import "../globals.css";
 
@@ -24,18 +26,12 @@ export async function generateMetadata({ params }: LayoutProps<"/[locale]">): Pr
   if (!hasLocale(locale)) return {};
   const { meta } = getDictionary(locale);
   return {
-    title: fill(meta.title, { brand: BRAND.name }),
-    description: fill(meta.description, { brand: BRAND.name }),
-    icons: {
-      // app/favicon.ico is linked automatically by Next; these add the PNG sizes.
-      icon: [
-        { url: '/brand/thanh-hoang-logo.png', sizes: '32x32', type: 'image/png' },
-        { url: '/brand/thanh-hoang-logo.png', sizes: '192x192', type: 'image/png' },
-        { url: '/brand/thanh-hoang-logo.png', sizes: '512x512', type: 'image/png' },
-      ],
-      apple: { url: '/brand/thanh-hoang-logo.png', sizes: '180x180' },
-    },
-    alternates: { languages: Object.fromEntries(LOCALES.map((l) => [l, `/${l}`])) },
+    // relative URLs below (canonical, hreflang, Open Graph) resolve against it
+    metadataBase: new URL(SITE_URL),
+    // the home page's; each company page sets its own (see pageMetadata)
+    ...pageMetadata(locale, "home", meta),
+    // Icons are files in app/ (favicon.ico, icon.png, apple-icon.png — the
+    // logo's mark, squared), which Next links on every page by itself.
   };
 }
 
@@ -64,9 +60,12 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[lo
         />
       </head>
       <body>
+        {/* the business, for search engines (schema.org TravelAgency) */}
+        <script type="application/ld+json" dangerouslySetInnerHTML={jsonLdScript(organizationJsonLd(locale, getDictionary(locale).footer.addressText))} />
         <noscript>
           <style>{"html[data-loading]{overflow:auto}html[data-loading] [data-hide-while-loading]{opacity:1}"}</style>
         </noscript>
+        <BootLogo />
         {children}
       </body>
     </html>

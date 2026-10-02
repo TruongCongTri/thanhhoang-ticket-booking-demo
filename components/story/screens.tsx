@@ -15,8 +15,8 @@ export function PageHero({ id, t, live = false }: { id: StoryPageId; t: Dictiona
   const split = live ? { "data-split": "hero" } : {};
   const Title = live ? "h1" : "p";
 
-  if (id === "organization") {
-    const h = t.organization.hero;
+  if (id !== "about") {
+    const h = t[id].hero;
     return (
       <>
         <p {...fade(0.2)} className="t-label mb-6">
@@ -58,6 +58,6 @@ export function PageHero({ id, t, live = false }: { id: StoryPageId; t: Dictiona
 
 /** A page's closing line, shown in the footer under the particle logo. */
 export function finaleLine(id: StoryPageId, t: Dictionary) {
-  const f = id === "organization" ? t.organization.finale : t.about.finale;
+  const f = t[id].finale;
   return fill(f.title, { brand: BRAND.name });
 }

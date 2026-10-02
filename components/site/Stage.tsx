@@ -35,15 +35,18 @@ export default function Stage({
   const height = screens ? { height: `${screens * 100}svh` } : undefined;
   if (pin) {
     return (
-      <section id={id} data-stage className="relative h-[150svh]" style={height}>
-        <div className="sticky top-[16svh] mx-auto w-full max-w-[1280px] px-6 md:px-10">
-          <div className={stageColumn(side, narrow)}>{children}</div>
+      <section id={id} data-stage className="relative h-[calc(var(--stage,1.5)*100svh)]" style={height}>
+        {/* released just before the chapter ends, once its last step has played */}
+        <div className="h-[calc(100%-10svh)]">
+          <div className="sticky top-[16svh] mx-auto w-full max-w-[1280px] px-6 md:px-10">
+            <div className={stageColumn(side, narrow)}>{children}</div>
+          </div>
         </div>
       </section>
     );
   }
   return (
-    <section id={id} data-stage className={`relative flex h-[150svh] ${STAGE_ALIGN[side]}`} style={height}>
+    <section id={id} data-stage className={`relative flex h-[calc(var(--stage,1.5)*100svh)] ${STAGE_ALIGN[side]}`} style={height}>
       <div className="mx-auto w-full max-w-[1280px] px-6 md:px-10">
         <div className={stageColumn(side, narrow)}>{children}</div>
       </div>
@@ -52,14 +55,15 @@ export default function Stage({
 }
 
 // Scroll margins decide where a #link to the section lands: centred copy
-// lands mid-screen, the footer lands with the page's end.
+// lands mid-screen, the footer lands with the page's end. A chapter is
+// --stage screens long (1.5 unless a page sets it; see STAGE_SCREENS).
 export const STAGE_ALIGN = {
   hero: "items-start pt-[46svh] md:pt-[18svh]",
-  left: "items-center -scroll-mt-[25svh]",
-  right: "items-center -scroll-mt-[25svh]",
-  middle: "items-center -scroll-mt-[25svh]",
+  left: "items-center scroll-mt-[calc((1-var(--stage,1.5))*50svh)]",
+  right: "items-center scroll-mt-[calc((1-var(--stage,1.5))*50svh)]",
+  middle: "items-center scroll-mt-[calc((1-var(--stage,1.5))*50svh)]",
   // clear of the booking dock (and its tabs) fixed at the bottom of the screen
-  end: "items-end pb-44 md:pb-56 -scroll-mt-[50svh]",
+  end: "items-end pb-44 md:pb-56 scroll-mt-[calc((1-var(--stage,1.5))*100svh)]",
 } as const;
 
 export function stageColumn(side: keyof typeof STAGE_ALIGN, narrow = false) {

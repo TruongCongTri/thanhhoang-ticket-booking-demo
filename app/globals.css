@@ -1314,3 +1314,122 @@ button {
   opacity: 0;
   will-change: transform, opacity;
 }
+
+/* The partner logos beside their particle cards (PartnerGrid): lit with the card the model lights. */
+.partner-tile {
+  padding: 4px;
+  border-radius: 14px;
+  outline: 2px solid transparent;
+  transition:
+    outline-color 0.5s ease,
+    opacity 0.5s ease;
+}
+.partner-tile-on {
+  outline-color: var(--saffron-fill);
+}
+
+/*
+ * The boot logo (BootLogo): the loading screen's logo as plain HTML, in the
+ * first paint, where the particles then draw it — 0.88 × 9 scene units wide
+ * (about 90svh), a touch above centre; on phones 90% of the width. It fades
+ * once the particles are up, or the page has started without them.
+ */
+.boot-logo {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 3.4svh;
+  pointer-events: none;
+  transition: opacity 0.9s ease;
+}
+.boot-logo img {
+  width: min(89.7svh, 90vw);
+  height: auto;
+  animation: boot-breathe 2.4s ease-in-out infinite;
+}
+html[data-particles] .boot-logo,
+html:not([data-loading]) .boot-logo {
+  opacity: 0;
+}
+@keyframes boot-breathe {
+  50% {
+    opacity: 0.72;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .boot-logo img {
+    animation: none;
+  }
+}
+
+/* ---- Error, 404 and loading screens ---- */
+
+.error-screen {
+  position: relative;
+  display: flex;
+  min-height: 100svh;
+  align-items: center;
+  overflow: hidden;
+  padding: 120px 0 80px;
+  background: var(--paper-color);
+}
+.error-code {
+  font-size: clamp(110px, 22vw, 220px);
+  font-weight: 200;
+  line-height: 0.9;
+  letter-spacing: -0.06em;
+  color: var(--saffron-fill);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Route loading: a ring of triangles chasing each other, mid-screen. */
+.route-loading {
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  animation: route-loading-in 0.3s ease 0.15s both;
+}
+.route-loading-ring {
+  width: 72px;
+  height: 72px;
+}
+.route-loading-ring polygon {
+  fill: var(--azure-fill);
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: route-loading-tick 1.2s ease-in-out infinite;
+}
+@keyframes route-loading-tick {
+  0%,
+  100% {
+    opacity: 0.18;
+    transform: scale(0.8);
+  }
+  15% {
+    opacity: 1;
+    transform: scale(1.35);
+    fill: var(--saffron-fill);
+  }
+}
+/* a first visit has the boot logo instead: the ring is for moving between pages */
+html[data-loading] .route-loading {
+  display: none;
+}
+/* only after a beat, so quick navigations never flash it */
+@keyframes route-loading-in {
+  from {
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .route-loading-ring polygon {
+    animation-duration: 3s;
+  }
+}

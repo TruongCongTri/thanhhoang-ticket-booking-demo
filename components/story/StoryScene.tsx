@@ -23,7 +23,9 @@ import { fragmentShader, skyVertexShader } from "../scene/shaders";
 import { virgoFit } from "../scene/virgo";
 import { storyVertexShader } from "./story-shader";
 import { history, mission, values, vision, pie, orgChart, TONE, type Model } from "./models";
-import { SCRIPTS, stageScreens, stepLengths, type Frame, type ModelKey, type Place, type Style } from "./scripts";
+import { pillars, processPath, radar, shareBars, svcCorp, svcGroup, svcTicket, svcTour, svcVisa } from "./services-models";
+import { PARTNERS, partners, trophy } from "./achievements-models";
+import { SCRIPTS, STAGE_SCREENS, stageScreens, stepLengths, type Frame, type ModelKey, type Place, type Style } from "./scripts";
 import { storyBus, type FrameRef } from "./bus";
 import { BRAND } from "@/lib/brand";
 import { LOAD, onPageStart } from "@/lib/loading";
@@ -85,7 +87,7 @@ function poseFor(place: Place, box: Model["box"], compact: boolean, aspect: numb
   const bh = box.y1 - box.y0;
   const cx = (box.x0 + box.x1) / 2;
   const cy = (box.y0 + box.y1) / 2;
-  const fill = place.fill ?? 1;
+  const fill = (compact ? place.compactFill : undefined) ?? place.fill ?? 1;
   let s: number;
   let x: number;
   let y: number;
@@ -104,13 +106,12 @@ function poseFor(place: Place, box: Model["box"], compact: boolean, aspect: numb
   return { x, y, rx: place.rx ?? 0, ry: (place.ry ?? 0) * turn, rz: place.rz ?? 0, s };
 }
 
-/** The logo image as pixels (as scene/Scene.tsx). */
-async function loadLogoPixels(): Promise<LogoPixels | null> {
+/** An image as pixels, `w` wide (the company logo, the partners' logos). */
+async function loadPixels(src: string, w = 720): Promise<LogoPixels | null> {
   try {
     const img = new Image();
-    img.src = BRAND.logo.src;
+    img.src = src;
     await img.decode();
-    const w = 720;
     const h = Math.round((w * img.naturalHeight) / img.naturalWidth);
     const canvas = document.createElement("canvas");
     canvas.width = w;
@@ -123,6 +124,9 @@ async function loadLogoPixels(): Promise<LogoPixels | null> {
     return null;
   }
 }
+
+/** The company logo image as pixels (as scene/Scene.tsx). */
+const loadLogoPixels = () => loadPixels(BRAND.logo.src);
 
 const seedOf = (key: string) => [...key].reduce((h, c) => (Math.imul(h, 31) + c.charCodeAt(0)) | 0, 20261002);
 
@@ -203,6 +207,7 @@ export default function StoryScene() {
       uLookB: { value: new THREE.Vector4(1, 0, 1, 0) },
       uPulse: { value: new THREE.Vector2() },
       uReveal: { value: new THREE.Vector2(-1, -1) },
+      uSolo: { value: new THREE.Vector2() },
       uAppear: { value: 0 },
       uLoadProgress: { value: 0 },
       uLoader: { value: 1 },
@@ -398,7 +403,10 @@ export default function StoryScene() {
       return finishFrame(model, pos, info, col);
     };
 
-    const BUILDERS: Record<Exclude<ModelKey, "logo">, (budget: number, r: () => number) => Model> = {
+    /** The partners' logos as pixels, one list per group of partners (loaded once, when first needed). */
+    const partnerImages = (which: keyof typeof PARTNERS) => Promise.all(PARTNERS[which].map((p) => loadPixels(p.logo, 480)));
+
+    const BUILDERS: Record<Exclude<ModelKey, "logo">, (budget: number, r: () => number) => Model | Promise<Model>> = {
       "history-2013": (b, r) => history(b, r, geoData as GeoData, 2013),
       "history-2016": (b, r) => history(b, r, geoData as GeoData, 2016),
       "history-2019": (b, r) => history(b, r, geoData as GeoData, 2019),
@@ -408,6 +416,18 @@ export default function StoryScene() {
       values,
       pie: (b, r) => pie(b, r),
       org: orgChart,
+      "svc-ticket": svcTicket,
+      "svc-group": svcGroup,
+      "svc-visa": svcVisa,
+      "svc-tour": svcTour,
+      "svc-corp": svcCorp,
+      share: shareBars,
+      pillars,
+      process: processPath,
+      radar,
+      trophy,
+      "partners-dom": async (b, r) => partners(b, r, "domestic", await partnerImages("domestic")),
+      "partners-intl": async (b, r) => partners(b, r, "international", await partnerImages("international")),
     };
 
     /** Builds (once) every model a script needs; yields between models so the page stays responsive. */
@@ -417,7 +437,8 @@ export default function StoryScene() {
         const key = todo[j];
         if (key === "logo") frames.set(key, logoFrame!);
         else {
-          const model = BUILDERS[key](Math.round(N * BUDGET), mulberry32(seedOf(key)));
+          const model = await BUILDERS[key](Math.round(N * BUDGET), mulberry32(seedOf(key)));
+          if (!alive) return;
           frames.set(key, model.family ? assignFamily(model) : assign(model));
         }
         onProgress?.((j + 1) / todo.length);
@@ -452,8 +473,10 @@ export default function StoryScene() {
       const list = SCRIPTS[page];
       const F = list.length;
       // The timeline runs in screens of scroll from the top of #story, and
-      // each chapter is as long as its markup says (stageScreens): 1.5
-      // screens, or more for a stepped one.
+      // each chapter is as long as its markup says (stageScreens):
+      // STAGE_SCREENS, or more for a stepped one. Windows below are in
+      // chapters (B), so the pace follows that one constant.
+      const B = STAGE_SCREENS;
       const len = list.map(stageScreens);
       const at = len.map((_, k) => len.slice(0, k).reduce((sum, h) => sum + h, 0));
       const END = len.reduce((sum, h) => sum + h, 0) - 1;
@@ -471,16 +494,16 @@ export default function StoryScene() {
         // screen; after a stepped chapter it waits until every step has played.
         const held = !!list[k - 1].steps;
         const last = k === F - 1;
-        const a = held ? at[k] - 0.8 : at[k] - (last ? 0.83 : 0.93);
-        const b = last ? Math.min(at[k] + 0.45, END) : at[k] + 0.18;
+        const a = at[k] - (held ? 0.53 : last ? 0.55 : 0.62) * B;
+        const b = last ? Math.min(at[k] + 0.3 * B, END) : at[k] + 0.12 * B;
         tl.fromTo(morph, { v: k - 1 }, { v: k, duration: b - a }, a);
       }
       list.forEach((f, k) => {
         if (!f.steps) return;
         // One step after another while the copy is pinned: from just after the
         // model has formed, to before the next chapter's morph sets off.
-        const from = at[k] + 0.2;
-        const to = at[k] + len[k] - 0.95;
+        const from = at[k] + 0.13 * B;
+        const to = at[k] + len[k] - 0.85 * B;
         // each step its own share of that scroll (stepLengths), one after another
         const lengths = stepLengths(f);
         const total = lengths.reduce((sum, l) => sum + l, 0);
@@ -609,6 +632,8 @@ export default function StoryScene() {
         upload(logoFrame, logoFrame, "sweep", false);
         points.visible = true;
         gsap.to(uniforms.uAppear, { value: 1, duration: 0.8, ease: "power1.out" });
+        // the particles are up: the static boot logo can fade (see BootLogo)
+        document.documentElement.setAttribute("data-particles", "");
         if (freshLoad) progress(0.15);
 
         // The page this load is for (its effects ran before ours).
@@ -901,6 +926,7 @@ export default function StoryScene() {
         look(b.data, poseB, litB, uniforms.uLookB.value);
         uniforms.uPulse.value.set(a.frame.pulse ?? 0, b.frame.pulse ?? 0);
         uniforms.uReveal.value.set(pair.aReveal, pair.bReveal);
+        uniforms.uSolo.value.set(a.frame.solo ? 1 : 0, b.frame.solo ? 1 : 0);
       }
 
       // The stars shine at full strength behind the loading screen only.
@@ -956,5 +982,5 @@ function revealAt(f: Frame, progress: number) {
   return r[i] + (r[i + 1] - r[i]) * p;
 }
 
-/** A frame's fixed lit group (scroll-lit frames start unlit). */
-const litOf = (f: Frame) => (typeof f.lit === "number" ? f.lit : 0);
+/** A frame's fixed lit group (scroll-lit frames start unlit; a solo one shows its first). */
+const litOf = (f: Frame) => (typeof f.lit === "number" ? f.lit : f.solo ? 1 : 0);

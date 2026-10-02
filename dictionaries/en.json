@@ -1,7 +1,7 @@
 {
   "meta": {
-    "title": "{brand} — Every Vietnamese airline, one search",
-    "description": "{brand} connects directly to every airline in Vietnam. Compare live fares from Vietnam Airlines, Vietjet, Bamboo, Vietravel, Pacific and Sun PhuQuoc Airways — domestic and international — and book in seconds."
+    "title": "Cheap flights on every Vietnamese airline | Thành Hoàng",
+    "description": "Book domestic and international flights with Vietnam Airlines, Vietjet, Bamboo, Vietravel and more. Live fares from every airline, instant e-tickets."
   },
   "loading": "Loading {brand}…",
   "archipelagos": [
@@ -31,7 +31,7 @@
       "routes": "Domestic flights",
       "international": "International flights",
       "ticket": "Board",
-      "thanh-hoang": "Thanh Hoang"
+      "thanh-hoang": "Thành Hoàng"
     }
   },
   "hero": {
@@ -261,7 +261,7 @@
     "booked": "Booked · {code}",
     "bookedBody": "{route} · {date}, {time} · {flight}. Saved to {phone}.",
     "demoTitle": "This was a demo booking",
-    "demoBody": "No ticket was issued and no money was taken. This site is a portfolio demo, not affiliated with Thanh Hoang."
+    "demoBody": "No ticket was issued and no money was taken. This site is a portfolio demo, not affiliated with Thành Hoàng."
   },
   "trips": {
     "title": "My trips",
@@ -317,7 +317,7 @@
     "resend": "Resend code",
     "resendIn": "Resend in {s}s",
     "changeNumber": "Change number",
-    "demoSms": "Your Thanh Hoang code: {code}",
+    "demoSms": "Your Thành Hoàng code: {code}",
     "demoSmsBody": "Demo SMS to {phone} — in production it arrives by text message.",
     "forPhone": "Trips for {phone}",
     "verified": "Verified",
@@ -348,16 +348,16 @@
   "disclaimer": {
     "title": "Disclaimer",
     "body": [
-      "This is a demo website. I built it to show what I can do as an end-to-end developer, from 3D interaction and design to booking, payment and ticketing flows, and how I could contribute to Thanh Hoang.",
-      "It is not affiliated with or endorsed by Thanh Hoang. I claim no copyright over the company's name, logo or content. No real bookings or payments are made, and flight data is simulated.",
-      "If you represent Thanh Hoang and would like anything changed or removed, please get in touch and I will act on it promptly."
+      "This is a demo website. I built it to show what I can do as an end-to-end developer, from 3D interaction and design to booking, payment and ticketing flows, and how I could contribute to Thành Hoàng.",
+      "It is not affiliated with or endorsed by Thành Hoàng. I claim no copyright over the company's name, logo or content. No real bookings or payments are made, and flight data is simulated.",
+      "If you represent Thành Hoàng and would like anything changed or removed, please get in touch and I will act on it promptly."
     ],
     "contact": "Contact me",
     "close": "Close"
   },
   "pages": {
     "menu": "About",
-    "menuLabel": "About Thanh Hoang",
+    "menuLabel": "About Thành Hoàng",
     "soon": "Coming soon",
     "flights": "Flights",
     "names": {
@@ -372,14 +372,14 @@
     "scrollPrev": "Scroll up for {page}"
   },
   "homeAbout": {
-    "label": "About Thanh Hoang",
+    "label": "About Thành Hoàng",
     "title": "Over ten years beside every journey.",
     "cta": "Our story"
   },
   "about": {
     "meta": {
-      "title": "About — {brand}",
-      "description": "The history, vision, mission and core values of Thanh Hoang Travel, travelling alongside its customers since 2013."
+      "title": "About Thành Hoàng – Vietnam flight ticket agent since 2013",
+      "description": "Thành Hoàng Travel, an official flight ticket agent since 2013: our history, vision, mission and five core values — reliable, professional, convenient, transparent, caring."
     },
     "rail": {
       "intro": "Thank you",
@@ -390,13 +390,13 @@
       "vision": "Vision",
       "mission": "Mission",
       "values": "Core values",
-      "end": "Thanh Hoang"
+      "end": "Thành Hoàng"
     },
     "hero": {
-      "label": "Thanh Hoang Travel · Since 2013",
+      "label": "Thành Hoàng Travel · Since 2013",
       "title": "Beside you on every journey.",
-      "body": "Thank you for trusting and travelling with us since 2013. In a spirit of care, good fortune and togetherness, Thanh Hoang is committed to service that is reliable, professional and wholehearted.",
-      "company": "Thanh Hoang Travel Trading and Development Co., Ltd.",
+      "body": "Thank you for trusting and travelling with us since 2013. In a spirit of care, good fortune and togetherness, Thành Hoàng is committed to service that is reliable, professional and wholehearted.",
+      "company": "Thành Hoàng Travel Trading and Development Co., Ltd.",
       "taxLabel": "Tax code",
       "tax": "0312171360"
     },
@@ -407,7 +407,7 @@
         {
           "years": "2013 – 2015",
           "title": "Beginnings",
-          "body": "Founded in 2013 to make booking a flight easy and transparent for Vietnamese travellers. From a small office in Ho Chi Minh City, Thanh Hoang quickly became an official agent of the country's major domestic airlines."
+          "body": "Founded in 2013 to make booking a flight easy and transparent for Vietnamese travellers. From a small office in Ho Chi Minh City, Thành Hoàng quickly became an official agent of the country's major domestic airlines."
         },
         {
           "years": "2016 – 2018",
@@ -417,19 +417,19 @@
         {
           "years": "2019 – 2021",
           "title": "Fully digital",
-          "body": "Ahead of travel 4.0, Thanh Hoang launched AGS99, a platform built for flight-ticket agents, along with visa support, hotel booking, travel insurance and 24/7 customer care."
+          "body": "Ahead of travel 4.0, Thành Hoàng launched AGS99, a platform built for flight-ticket agents, along with visa support, hotel booking, travel insurance and 24/7 customer care."
         },
         {
           "years": "2022 – today",
           "title": "Sustained momentum",
-          "body": "More than a ticket seller, Thanh Hoang became a complete travel bridge connecting millions of passengers. The THcent system and agent incentives widened its network across the country."
+          "body": "More than a ticket seller, Thành Hoàng became a complete travel bridge connecting millions of passengers. The THcent system and agent incentives widened its network across the country."
         }
       ]
     },
     "vision": {
       "label": "Vision",
       "title": "Vietnam's leading flight-ticket provider.",
-      "body": "Thanh Hoang keeps innovating with technology to make booking fast, safe and cost-effective. We don't just sell tickets: we make the start of every trip smooth and dependable — for business, family visits or holidays alike."
+      "body": "Thành Hoàng keeps innovating with technology to make booking fast, safe and cost-effective. We don't just sell tickets: we make the start of every trip smooth and dependable — for business, family visits or holidays alike."
     },
     "mission": {
       "label": "Mission",
@@ -468,14 +468,14 @@
   },
   "organization": {
     "meta": {
-      "title": "Organization — {brand}",
-      "description": "How Thanh Hoang Travel is organised: its leadership, departments and network of collaborators."
+      "title": "Our organization & team | Thành Hoàng",
+      "description": "How Thành Hoàng Travel is organised: the board, five departments and a network of collaborators, supporting travellers 24/7."
     },
     "rail": {
       "structure": "Structure",
       "people": "Our people",
       "chart": "Organization chart",
-      "end": "Thanh Hoang"
+      "end": "Thành Hoàng"
     },
     "hero": {
       "label": "Our structure",
@@ -620,7 +620,262 @@
       }
     },
     "finale": {
-      "title": "Together, they keep Thanh Hoang growing."
+      "title": "Together, they keep Thành Hoàng growing."
+    }
+  },
+  "services": {
+    "meta": {
+      "title": "Flights, group bookings & visas | Thành Hoàng",
+      "description": "Domestic and international flights, up to 20% off group bookings, visas for 50+ countries, travel insurance, hotels and corporate travel with Thành Hoàng."
+    },
+    "rail": {
+      "intro": "Services & operations",
+      "ticket": "Flight tickets",
+      "group": "Group bookings",
+      "visa": "Visa & insurance",
+      "tour": "Hotels & car hire",
+      "corporate": "Corporate",
+      "share": "What customers choose",
+      "principles": "Principles",
+      "process": "How we work",
+      "strengths": "Our strengths",
+      "end": "Thành Hoàng"
+    },
+    "hero": {
+      "label": "Services & operations",
+      "title": "Every journey, end to end.",
+      "body": "With the customer at the centre, Thành Hoàng has built an ecosystem of services for every journey — meeting today's needs and looking further, to an experience that stays convenient, transparent and dependable."
+    },
+    "featured": {
+      "label": "Featured services",
+      "items": [
+        {
+          "name": "Domestic & international flights",
+          "body": "Tickets on hundreds of routes with many respected airlines, at good prices and with flexible support."
+        },
+        {
+          "name": "Group bookings",
+          "body": "Up to 20% off for groups of 10 or more — for business trips, group holidays and events."
+        },
+        {
+          "name": "Visa & travel insurance",
+          "body": "Visa support for more than 50 countries, with travel insurance to keep you covered the whole way."
+        },
+        {
+          "name": "Hotels & car hire",
+          "body": "Partnerships with thousands of hotels and transport operators, so you can book rooms and rides at competitive prices."
+        },
+        {
+          "name": "Corporate travel",
+          "body": "Tailored for businesses: free ticket changes, invoiced billing, 24/7 support and a dedicated care policy."
+        }
+      ]
+    },
+    "share": {
+      "label": "What customers choose",
+      "title": "What customers come to us for.",
+      "note": "Share of customers choosing each of our services",
+      "items": [
+        {
+          "figure": "45%",
+          "name": "Domestic flights",
+          "body": "Nearly half our customers come to Thành Hoàng for flights within Vietnam."
+        },
+        {
+          "figure": "30%",
+          "name": "International flights",
+          "body": "Close to a third choose us for journeys abroad."
+        },
+        {
+          "figure": "10%",
+          "name": "Visa & travel insurance",
+          "body": "The paperwork and the peace of mind, alongside the ticket."
+        },
+        {
+          "figure": "10%",
+          "name": "Group bookings",
+          "body": "Business trips, group holidays and events."
+        },
+        {
+          "figure": "5%",
+          "name": "Other services",
+          "body": "Hotels, car hire and everything else the trip needs."
+        }
+      ]
+    },
+    "principles": {
+      "label": "How we operate",
+      "title": "Six principles, one promise.",
+      "items": [
+        {
+          "name": "Transparency first",
+          "body": "From pricing and booking to payment and the benefits that come with it — everything clear, accurate and free of hidden fees."
+        },
+        {
+          "name": "With you 24/7",
+          "body": "Customer care that never stops, even out of hours and on holidays. Every request is heard and seen through."
+        },
+        {
+          "name": "Best fares through technology",
+          "body": "AI updates fares in real time and forecasts price trends, so customers always get the most competitive price."
+        },
+        {
+          "name": "Secure information, peace of mind",
+          "body": "Personal data, booking history and payment details are encrypted and stored to international security standards."
+        },
+        {
+          "name": "Wholehearted service",
+          "body": "Every customer is a travelling companion: from changing a ticket to helping with check-in, the team stays friendly and professional."
+        },
+        {
+          "name": "Fairness that lasts",
+          "body": "Clear, transparent policies that share opportunity, responsibility and reward with staff, agents, customers and partners."
+        }
+      ]
+    },
+    "process": {
+      "label": "How we work",
+      "title": "Efficiency starts with process.",
+      "quote": "Clear, consistent, optimised.",
+      "items": [
+        {
+          "name": "Listen and advise",
+          "body": "We understand the trip — dates, places, budget, special requests — and suggest the itinerary that fits best, for cost and experience alike."
+        },
+        {
+          "name": "Search and book, flexibly",
+          "body": "Real-time fare comparison and schedule checks. Booking is quick and transparent through every channel: online, by phone, in person or via an agent."
+        },
+        {
+          "name": "Pay, then after-sales support",
+          "body": "Safe, flexible payment. After ticketing we keep helping with changes, cancellations, refunds and anything that comes up on the way."
+        },
+        {
+          "name": "Care and stay in touch",
+          "body": "It doesn't end with the booking: offers and flight updates, and for businesses and agents, ticket and billing management on their own terms."
+        }
+      ]
+    },
+    "strengths": {
+      "label": "Our strengths",
+      "title": "Fast, modern, caring.",
+      "items": [
+        {
+          "name": "Smart booking",
+          "body": "Real-time fares so customers find the best price, with a simpler way to book."
+        },
+        {
+          "name": "24/7 support",
+          "body": "A support centre open around the clock, before, during and after the journey."
+        },
+        {
+          "name": "AI assistant – AGS99",
+          "body": "An assistant for agents built on 4.0 technology, managing orders and customer care and optimising revenue."
+        },
+        {
+          "name": "Points & cashback",
+          "body": "A loyalty programme turning reward points into savings on tickets and travel services."
+        },
+        {
+          "name": "Partner network",
+          "body": "Links with many domestic and international airlines, for wide choice and competitive prices."
+        }
+      ]
+    },
+    "finale": {
+      "title": "Fast service, modern technology, wholehearted support."
+    }
+  },
+  "achievements": {
+    "meta": {
+      "title": "Awards & airline partners | Thành Hoàng",
+      "description": "Awards from Vietnam Airlines, Vietjet, Bamboo Airways, Vietravel Airlines and IATA; a partner of 10 domestic and international airlines."
+    },
+    "rail": {
+      "intro": "Achievements & partners",
+      "awards": "Achievements",
+      "partners-dom": "Domestic partners",
+      "partners-intl": "International partners",
+      "closing": "A closing word",
+      "end": "Thành Hoàng"
+    },
+    "hero": {
+      "label": "Achievements & partners",
+      "title": "A journey that endures.",
+      "body": "Today's success is the result of a long, steady journey and a firm belief in being different. We keep improving, widening our network of partners and raising the experience of every service."
+    },
+    "awards": {
+      "label": "Achievements",
+      "title": "Trust, recognised.",
+      "counters": {
+        "years": "years with you",
+        "awards": "awards & certificates",
+        "airlines": "partner airlines",
+        "customers": "customers served"
+      },
+      "timeline": [
+        {
+          "years": "2018 – 2021",
+          "items": [
+            "Vietjet Air Silver Star award, 2018",
+            "Vietjet Air Outstanding Agent, 2020",
+            "Vietravel Airlines Outstanding Agent, 2021"
+          ]
+        },
+        {
+          "years": "2022",
+          "items": [
+            "Vietjet Air Sapphire Award 2022",
+            "Vietjet Air Sapphire 2022",
+            "Vietravel Airlines Excellent Agent of 2022"
+          ]
+        },
+        {
+          "years": "2023",
+          "items": [
+            "Authorised agent certificate, Vietravel Airlines",
+            "Vietjet Air Digital Ambassador award"
+          ]
+        },
+        {
+          "years": "2024",
+          "items": [
+            "Titan Agent for the Vietnamese market — Vietnam Airlines",
+            "Top Excellent Agent of 2024 — Bamboo Airways",
+            "Sapphire Award — Vietjet Air",
+            "Gold award for outstanding partners — TravelPort"
+          ]
+        },
+        {
+          "years": "2025",
+          "items": [
+            "Accredited to promote and sell international air passenger tickets — IATA, the International Air Transport Association"
+          ]
+        }
+      ]
+    },
+    "partners": {
+      "label": "Our partners",
+      "domestic": {
+        "title": "Vietnamese airlines",
+        "body": "An official agent for Vietnam's airlines: good fares, real seats, tickets issued at once."
+      },
+      "international": {
+        "title": "International airlines",
+        "body": "Links with respected international carriers, taking customers across Asia and beyond."
+      }
+    },
+    "closing": {
+      "label": "A closing word",
+      "title": "Every flight is a story.",
+      "body": "Every journey is a dream still being written. Each ticket booked is a commitment to quality and a promise of a complete, worry-free experience. Because for us, a customer's satisfaction is not the destination — it is the starting point for going further.",
+      "thanks": "Thank you!",
+      "book": "Book a flight",
+      "call": "Call {phone}",
+      "zalo": "Chat on Zalo"
+    },
+    "finale": {
+      "title": "A customer's satisfaction is the starting point for going further."
     }
   }
 }

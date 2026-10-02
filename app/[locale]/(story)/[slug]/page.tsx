@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import StoryPage from "@/components/story/StoryPage";
-import { AboutChapters, OrganizationChapters } from "@/components/story/pages";
-import { BRAND } from "@/lib/brand";
-import { LOCALES, fill, hasLocale } from "@/lib/i18n";
+import { AboutChapters, AchievementsChapters, OrganizationChapters, ServicesChapters } from "@/components/story/pages";
+import { hasLocale } from "@/lib/i18n";
 import { BUILT, SLUGS, pageFromSlug, pagePath, isBuilt } from "@/lib/pages";
+import { breadcrumbJsonLd, jsonLdScript, pageMetadata } from "@/lib/seo";
 import { getDictionary } from "../../dictionaries";
 
 type Params = { locale: string; slug: string };
@@ -26,13 +26,7 @@ function resolve({ locale, slug }: Params) {
 export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
   const page = resolve(await params);
   if (!page) return {};
-  const t = getDictionary(page.locale);
-  const meta = page.id === "organization" ? t.organization.meta : t.about.meta;
-  return {
-    title: fill(meta.title, { brand: BRAND.name }),
-    description: meta.description,
-    alternates: { languages: Object.fromEntries(LOCALES.map((l) => [l, pagePath(l, page.id)])) },
-  };
+  return pageMetadata(page.locale, page.id, getDictionary(page.locale)[page.id].meta);
 }
 
 export default async function Page({ params }: { params: Promise<Params> }) {
@@ -41,16 +35,32 @@ export default async function Page({ params }: { params: Promise<Params> }) {
   const { locale, id } = page;
   const t = getDictionary(locale);
 
-  if (id === "organization") {
-    return (
-      <StoryPage id={id} t={t} locale={locale} rail={t.organization.rail}>
-        <OrganizationChapters t={t.organization} />
-      </StoryPage>
-    );
-  }
-  return (
-    <StoryPage id={id} t={t} locale={locale} rail={t.about.rail}>
+  const chapters =
+    id === "achievements" ? (
+      <AchievementsChapters t={t.achievements} locale={locale} home={pagePath(locale, "home")} />
+    ) : id === "services" ? (
+      <ServicesChapters t={t.services} />
+    ) : id === "organization" ? (
+      <OrganizationChapters t={t.organization} />
+    ) : (
       <AboutChapters t={t.about} />
-    </StoryPage>
+    );
+
+  return (
+    <>
+      {/* home › this page, for search results */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={jsonLdScript(
+          breadcrumbJsonLd(locale, [
+            { name: t.pages.flights, page: "home" },
+            { name: t.pages.names[id], page: id },
+          ]),
+        )}
+      />
+      <StoryPage id={id} t={t} locale={locale} rail={t[id].rail}>
+        {chapters}
+      </StoryPage>
+    </>
   );
 }

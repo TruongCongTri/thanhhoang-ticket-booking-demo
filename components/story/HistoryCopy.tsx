@@ -2,6 +2,7 @@
 
 import { useSyncExternalStore } from "react";
 import { storyBus } from "./bus";
+import StepTicks from "./StepTicks";
 import FlipText from "./FlipText";
 
 type Milestone = { years: string; title: string; body: string };
@@ -14,7 +15,18 @@ const FIRST_FRAME = 1;
  * shows whichever milestone the particle model is on (the year gliding
  * along the flight path), so text and 3D always match — as the core values.
  */
-export default function HistoryCopy({ label, quote, items }: { label: string; quote: string; items: Milestone[] }) {
+export default function HistoryCopy({
+  label,
+  quote,
+  items,
+  ids,
+}: {
+  label: string;
+  quote: string;
+  items: Milestone[];
+  /** Each milestone's chapter, for the ticks to link to. */
+  ids: readonly string[];
+}) {
   const frame = useSyncExternalStore(
     storyBus.onLit,
     () => storyBus.litOf("frame:about"),
@@ -25,14 +37,7 @@ export default function HistoryCopy({ label, quote, items }: { label: string; qu
   return (
     <div className="max-w-[480px]">
       <p className="t-label mb-5">{label}</p>
-      <div aria-hidden className="mb-6 flex gap-2">
-        {items.map((m, i) => (
-          <span
-            key={m.years}
-            className={`h-1 flex-1 rounded-full transition-colors duration-500 ${i === current ? "bg-azure" : i < current ? "bg-white/35" : "bg-white/12"}`}
-          />
-        ))}
-      </div>
+      <StepTicks labels={items.map((m) => m.years)} current={current} hrefs={ids.map((id) => `#${id}`)} className="mb-6" />
       {/* Held still: the counter and the years flip over to the milestone on show */}
       <span className="t-caption block text-saffron">
         <FlipText value={`${pad(current + 1)} / ${pad(items.length)}`} />
